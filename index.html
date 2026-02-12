@@ -8,6 +8,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- AOS Scroll Animations -->
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <!-- Leaflet.js for Interactive Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Quicksand:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -215,6 +218,36 @@
     }
     .shake { animation: shake 0.5s ease; }
     
+    /* ===== INTERACTIVE MAP ===== */
+    #love-map {
+      height: 300px;
+      width: 100%;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(255, 141, 161, 0.2);
+      border: 4px solid white;
+      z-index: 1;
+    }
+    .leaflet-popup-content {
+      font-family: 'Quicksand', sans-serif;
+      color: #ff8da1;
+      font-weight: 600;
+    }
+    .leaflet-popup-tip {
+      background: white;
+    }
+    
+    /* ===== COUNTDOWN ===== */
+    .countdown-number {
+      background: linear-gradient(135deg, #ff8da1, #ffb7c5);
+      color: white;
+      font-weight: 700;
+      border-radius: 12px;
+      padding: 8px 12px;
+      min-width: 70px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(255, 141, 161, 0.3);
+    }
+    
     /* ===== DISTANCE VISUAL ===== */
     .distance-line {
       background: linear-gradient(90deg, #ff8da1, #ffb7c5, #ff8da1);
@@ -245,6 +278,8 @@
         font-size: 12px !important;
         padding: 8px 16px !important;
       }
+      #love-map { height: 250px; }
+      .countdown-number { min-width: 60px; padding: 6px 8px; }
     }
   </style>
 </head>
@@ -284,32 +319,28 @@
   <!-- Main Content -->
   <div id="main-content" class="relative max-w-6xl mx-auto px-4 py-12 opacity-0 transition-opacity duration-1000">
     
-    <!-- ===== HERO SECTION — SIMPLE, 100% WORKS ===== -->
+    <!-- ===== HERO SECTION ===== -->
     <div class="relative min-h-screen flex items-center justify-center mb-20">
       <div class="absolute inset-0 bg-gradient-to-b from-pink-100/30 via-transparent to-pink-100/30 pointer-events-none"></div>
       <div class="relative z-10 text-center max-w-4xl mx-auto px-4">
         
-        <!-- HER PHOTO - SIMPLE CONTAINER, ALWAYS VISIBLE -->
+        <!-- HER PHOTO -->
         <div class="relative inline-block mb-8 group">
-          <!-- Polaroid frames -->
           <div class="absolute -inset-2 md:-inset-3 bg-white rounded-2xl shadow-2xl rotate-[-2deg] group-hover:rotate-0 transition-transform duration-500"></div>
           <div class="absolute -inset-2 md:-inset-3 bg-white rounded-2xl shadow-2xl rotate-[3deg] group-hover:rotate-0 transition-transform duration-500 opacity-50"></div>
           
-          <!-- PHOTO CONTAINER - GUARANTEED TO SHOW -->
           <div class="relative w-64 h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden shadow-2xl border-4 border-white mx-auto bg-pink-100">
-            <!-- FALLBACK PLACEHOLDER - ALWAYS WORKS -->
             <img 
               src="assets/IMG-20250710-WA0039 (1).jpg"
               alt="her smile"
               class="absolute inset-0 w-full h-full object-cover object-center"
               id="hero-image"
               style="object-position: center 30%;"
+              onerror="this.src='https://placehold.co/400x400/ffb7c5/ffffff?text=My+Mama'"
             >
-            <!-- Soft gradient overlay -->
             <div class="absolute inset-0 bg-gradient-to-t from-pink-500/20 via-transparent to-transparent"></div>
           </div>
           
-          <!-- CAPTION -->
           <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-4 md:px-6 py-2 rounded-full text-xs md:text-sm font-medium text-gray-700 shadow-lg whitespace-nowrap">
             ✦ the woman who stole my heart ✦
           </div>
@@ -348,48 +379,67 @@
       </div>
     </section>
 
-    <!-- ===== DISTANCE VISUAL ===== -->
+    <!-- ===== INTERACTIVE MAP + LIVE COUNTDOWN COMBO ===== -->
     <section class="mb-24">
       <h2 class="text-3xl md:text-4xl font-bold text-center mb-8" style="color: #2d2d2d;">
         distance means nothing <span class="heart">🌍</span>
       </h2>
       
-      <div class="relative max-w-md mx-auto bg-white/80 backdrop-blur rounded-3xl p-8 shadow-xl border border-pink-200">
-        <div class="flex items-center justify-between mb-6">
-          <div class="text-center">
-            <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-2xl mx-auto mb-2">📍</div>
-            <p class="font-bold text-sm">Kadongo</p>
-            <p class="text-xs text-gray-400">you</p>
-          </div>
-          
-          <div class="flex-1 mx-4 relative">
-            <div class="h-1 distance-line rounded-full"></div>
-            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
-              <span class="text-xs font-bold text-pink-500 bg-white px-3 py-1 rounded-full shadow-sm">
-                ❤️ 287 km ❤️
-              </span>
-            </div>
-            <div class="flex justify-between mt-2">
-              <span class="text-xs text-gray-400">🇰🇪</span>
-              <span class="text-xs text-gray-400">🇰🇪</span>
-            </div>
-          </div>
-          
-          <div class="text-center">
-            <div class="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center text-2xl mx-auto mb-2">🏠</div>
-            <p class="font-bold text-sm">Mombasa</p>
-            <p class="text-xs text-gray-400">me</p>
-          </div>
+      <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+        <!-- LEFT: INTERACTIVE MAP - KADONGO → MOMBASA -->
+        <div class="bg-white/80 backdrop-blur rounded-3xl p-4 shadow-xl border border-pink-200">
+          <div id="love-map" style="height: 300px; width: 100%;"></div>
+          <p class="text-center text-xs text-gray-400 mt-3">
+            <span class="text-pink-500">❤️</span> Kadongo → Mombasa · 776 km <span class="text-pink-500">❤️</span>
+          </p>
         </div>
         
-        <div class="text-center mt-6 pt-4 border-t border-pink-100">
-          <p class="text-3xl font-bold text-pink-500">776 km</p>
-          <p class="text-xs text-gray-400 mt-1">but who's counting? (i am. every day.)</p>
+        <!-- RIGHT: LIVE COUNTDOWN WITH SECONDS -->
+        <div class="bg-gradient-to-br from-pink-50 to-white rounded-3xl p-6 shadow-xl border border-pink-200 flex flex-col justify-center">
+          <div class="text-center">
+            <span class="text-4xl mb-3 block">⏳</span>
+            <h3 class="text-xl font-bold mb-2" style="color: #ff8da1;">counting down to</h3>
+            <p class="text-lg font-semibold text-gray-700 mb-6">the next time i hold you</p>
+            
+            <!-- LIVE COUNTDOWN NUMBERS - WITH SECONDS! -->
+            <div class="flex justify-center gap-2 md:gap-3 mb-4 flex-wrap">
+              <div class="countdown-number">
+                <div id="days" class="text-2xl md:text-3xl font-bold">--</div>
+                <div class="text-xs opacity-90 mt-1">days</div>
+              </div>
+              <div class="countdown-number">
+                <div id="hours" class="text-2xl md:text-3xl font-bold">--</div>
+                <div class="text-xs opacity-90 mt-1">hrs</div>
+              </div>
+              <div class="countdown-number">
+                <div id="minutes" class="text-2xl md:text-3xl font-bold">--</div>
+                <div class="text-xs opacity-90 mt-1">mins</div>
+              </div>
+              <div class="countdown-number">
+                <div id="seconds" class="text-2xl md:text-3xl font-bold">--</div>
+                <div class="text-xs opacity-90 mt-1">secs</div>
+              </div>
+            </div>
+            
+            <p id="countdown-message" class="text-sm italic text-gray-500 mt-4">
+              every second brings me closer to you
+            </p>
+            
+            <!-- Target Date -->
+            <div class="mt-4 pt-4 border-t border-pink-200">
+              <p class="text-xs text-gray-400">
+                🎯 March 15, 2026 · 10:00 AM
+              </p>
+            </div>
+          </div>
         </div>
-        
-        <div class="mt-4 text-center">
-          <p class="text-sm italic text-gray-600">"every kilometer closes itself when i think of you"</p>
-        </div>
+      </div>
+      
+      <!-- Romantic Promise -->
+      <div class="text-center mt-8">
+        <p class="text-sm italic text-gray-600 bg-white/50 inline-block px-6 py-3 rounded-full shadow-sm">
+          "776 km apart, but you're always right here" <span class="text-pink-500">🫀</span>
+        </p>
       </div>
     </section>
 
@@ -402,7 +452,7 @@
         <div class="card p-6 rounded-2xl">
           <span class="text-4xl mb-3 block">👋</span>
           <h3 class="text-xl font-bold mb-2">the meet</h3>
-          <p class="text-gray-600">Bungoma — instant butterflies
+          <p class="text-gray-600">
             It was just a normal day.
 Nothing special about the air.
 Nothing unusual about the moment.
@@ -423,7 +473,7 @@ But I did.
         <div class="card p-6 rounded-2xl">
           <span class="text-4xl mb-3 block">✨</span>
           <h3 class="text-xl font-bold mb-2">the moment</h3>
-          <p class="text-gray-600">I knew I loved you the night you fell asleep on my shoulder and I didn't move for two hours.Then was awaken by your beautiful kisses at 2 am. Not because I was trapped. Because some moments are worth going numb for and dying for.</p>
+          <p class="text-gray-600">I knew I loved you the night you fell asleep on my shoulder and I didn't move for two hours. Then was awaken by your beautiful kisses at 2 am. Not because I was trapped. Because some moments are worth going numb for and dying for.</p>
           <p class="text-xs text-gray-400 mt-2">[09/07/2025]</p>
         </div>
         <div class="card p-6 rounded-2xl">
@@ -479,28 +529,8 @@ But I did.
       <div class="grid md:grid-cols-3 gap-8" id="polaroid-wall"></div>
     </section>
 
-    <!-- ===== COUNTDOWN TIMER ===== -->
-    <section class="mb-24">
-      <div class="bg-gradient-to-r from-pink-50 to-white rounded-2xl p-6 text-center border border-pink-200 max-w-md mx-auto">
-        <p class="text-xs uppercase tracking-wider text-pink-400 mb-2">counting down to</p>
-        <p class="text-xl font-bold mb-3">the next time i hold you 🤍</p>
-        
-        <div id="countdown" class="flex justify-center gap-4">
-          <div class="bg-white rounded-lg px-3 py-2 shadow-sm min-w-[70px]">
-            <span id="days" class="text-2xl font-bold text-pink-500">--</span>
-            <p class="text-xs text-gray-400">days</p>
-          </div>
-          <div class="bg-white rounded-lg px-3 py-2 shadow-sm">
-            <span id="hours" class="text-2xl font-bold text-pink-500">--</span>
-            <p class="text-xs text-gray-400">hrs</p>
-          </div>
-          <div class="bg-white rounded-lg px-3 py-2 shadow-sm">
-            <span id="minutes" class="text-2xl font-bold text-pink-500">--</span>
-            <p class="text-xs text-gray-400">min</p>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- ===== COUNTDOWN TIMER (Fallback) ===== -->
+    <!-- This is now integrated in the map section above, but keeping for compatibility -->
 
     <!-- 💌 THE LOVE LETTER - YOUR EXACT WORDS -->
     <section class="mb-24 relative">
@@ -736,9 +766,12 @@ But I did.
   <!-- AOS Script -->
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   
+    <!-- AOS Script -->
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  
   <script>
     // ============================================
-    // 🔐 PASSWORD PROTECTION
+    // 🔐 PASSWORD PROTECTION - FIXED
     // ============================================
     const CORRECT_PASSWORD = "24052025";
     const HER_NAME = "Mama";
@@ -749,19 +782,41 @@ But I did.
       const error = document.getElementById('password-error');
       
       if (input === CORRECT_PASSWORD) {
+        // Hide gate
         document.getElementById('gate').classList.add('hidden');
         document.body.classList.remove('locked');
         document.body.classList.add('unlocked');
-        document.getElementById('main-content').style.opacity = '1';
+        
+        // Show main content
+        const mainContent = document.getElementById('main-content');
+        mainContent.style.opacity = '1';
         
         // Initialize AOS
-        AOS.init({ once: true, duration: 800, offset: 100 });
+        if (typeof AOS !== 'undefined') {
+          AOS.init({ once: true, duration: 800, offset: 100 });
+        }
         
+        // Start animations
         createConfetti(100);
-        startTyping();
+        
+        // FIXED: Check if startTyping exists before calling
+        if (typeof startTyping === 'function') {
+          startTyping();
+        } else {
+          // Fallback typing starter
+          startTypingFallback();
+        }
         
         // Try to load real image after unlock
         setTimeout(tryLoadRealImage, 500);
+        
+        // Initialize map after content is visible
+        setTimeout(initLoveMap, 600);
+        
+        // Initialize countdown
+        if (typeof initCountdown === 'function') {
+          initCountdown();
+        }
       } else {
         error.classList.remove('hidden');
         document.getElementById('password-input').classList.add('shake');
@@ -772,23 +827,14 @@ But I did.
     }
 
     // ============================================
-    // 🖼️ TRY TO LOAD REAL IMAGE
-    // ============================================
-    function tryLoadRealImage() {
-      const heroImg = document.getElementById('hero-image');
-      if (heroImg) {
-        // Try to load the real image
-        heroImg.src = 'assets/IMG-20250710-WA0039 (1).jpg';
-      }
-    }
-
-    // ============================================
-    // ⌨️ TYPING ANIMATION
+    // ⌨️ TYPING ANIMATION - FIXED & MOVED TO TOP
     // ============================================
     function startTyping() {
       const words = ["sunshine ☀️", "safe space 🏠", "best friend 🫂", "favorite person 💕", "home 🏡", "everything ✨", "reason 🌙"];
       let i = 0, j = 0, isDeleting = false, isEnd = false;
       const wordsElement = document.getElementById('words');
+      
+      if (!wordsElement) return;
       
       function type() {
         if (!wordsElement) return;
@@ -798,11 +844,52 @@ But I did.
         if (isDeleting) {
           wordsElement.textContent = currentWord.substring(0, j - 1);
           j--;
-          if (j === 0) { isDeleting = false; i = (i + 1) % words.length; }
+          if (j === 0) { 
+            isDeleting = false; 
+            i = (i + 1) % words.length; 
+          }
         } else {
           wordsElement.textContent = currentWord.substring(0, j + 1);
           j++;
-          if (j === currentWord.length) { isEnd = true; isDeleting = true; }
+          if (j === currentWord.length) { 
+            isEnd = true; 
+            isDeleting = true; 
+          }
+        }
+        
+        const speed = isDeleting ? 50 : 100;
+        setTimeout(type, isEnd ? 2000 : speed);
+      }
+      setTimeout(type, 1000);
+    }
+    
+    // Fallback in case startTyping isn't defined
+    function startTypingFallback() {
+      const words = ["sunshine ☀️", "safe space 🏠", "best friend 🫂", "favorite person 💕", "home 🏡", "everything ✨", "reason 🌙"];
+      let i = 0, j = 0, isDeleting = false, isEnd = false;
+      const wordsElement = document.getElementById('words');
+      
+      if (!wordsElement) return;
+      
+      function type() {
+        if (!wordsElement) return;
+        isEnd = false;
+        const currentWord = words[i];
+        
+        if (isDeleting) {
+          wordsElement.textContent = currentWord.substring(0, j - 1);
+          j--;
+          if (j === 0) { 
+            isDeleting = false; 
+            i = (i + 1) % words.length; 
+          }
+        } else {
+          wordsElement.textContent = currentWord.substring(0, j + 1);
+          j++;
+          if (j === currentWord.length) { 
+            isEnd = true; 
+            isDeleting = true; 
+          }
         }
         
         const speed = isDeleting ? 50 : 100;
@@ -812,9 +899,133 @@ But I did.
     }
 
     // ============================================
+    // 🗺️ INTERACTIVE MAP - KADONGO → MOMBASA
+    // ============================================
+    function initLoveMap() {
+      // Check if map container exists and Leaflet is loaded
+      if (!document.getElementById('love-map') || typeof L === 'undefined') return;
+      
+      // Clear any existing map
+      const container = document.getElementById('love-map');
+      container.innerHTML = '';
+      
+      try {
+        // Kadongo coordinates (approx) - 0.1167° N, 34.6167° E
+        const kadongo = [0.1167, 34.6167];
+        // Mombasa coordinates - -4.0435° S, 39.6682° E
+        const mombasa = [-4.0435, 39.6682];
+        
+        // Create map centered between the two
+        const map = L.map('love-map').setView([-1.9634, 37.14245], 7);
+        
+        // Add beautiful light-themed tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          subdomains: 'abcd',
+          maxZoom: 19
+        }).addTo(map);
+        
+        // Custom heart icon for Mama (Kadongo)
+        const heartIcon = L.divIcon({
+          html: '📍',
+          className: 'text-2xl',
+          iconSize: [30, 30],
+          popupAnchor: [0, -15]
+        });
+        
+        // Custom home icon for Muffin (Mombasa)
+        const homeIcon = L.divIcon({
+          html: '🏠',
+          className: 'text-2xl',
+          iconSize: [30, 30],
+          popupAnchor: [0, -15]
+        });
+        
+        // Add marker for Kadongo (Mama)
+        L.marker(kadongo, { icon: heartIcon }).addTo(map)
+          .bindPopup('❤️ <strong>Mama</strong><br>Kadongo, Kenya');
+        
+        // Add marker for Mombasa (Muffin)
+        L.marker(mombasa, { icon: homeIcon }).addTo(map)
+          .bindPopup('💙 <strong>Muffin</strong><br>Mombasa, Kenya');
+        
+        // Draw a beautiful pink line connecting the two cities
+        const latlngs = [kadongo, mombasa];
+        const polyline = L.polyline(latlngs, {
+          color: '#ff8da1',
+          weight: 4,
+          opacity: 0.8,
+          dashArray: '10, 10',
+          lineCap: 'round'
+        }).addTo(map);
+        
+        // Add animated heart along the line
+        let counter = 0;
+        setInterval(() => {
+          counter = (counter + 0.01) % 1;
+          const point = polyline.getLatLngs()[0];
+          const lat = point[0] + (point[1] - point[0]) * counter;
+          const lng = point.lat ? point.lng : kadongo[1] + (mombasa[1] - kadongo[1]) * counter;
+          
+          // Remove old heart marker
+          if (window.heartMarker) map.removeLayer(window.heartMarker);
+          
+          // Add new heart marker
+          window.heartMarker = L.marker([lat, lng], {
+            icon: L.divIcon({
+              html: '❤️',
+              className: 'text-xl animate-pulse',
+              iconSize: [20, 20]
+            })
+          }).addTo(map);
+        }, 100);
+        
+        // Add distance label
+        const distanceLabel = L.divIcon({
+          html: '<div class="bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-lg text-pink-500 font-bold text-xs">776 km ❤️</div>',
+          className: 'distance-label',
+          iconSize: [100, 30],
+          iconAnchor: [50, 15]
+        });
+        
+        L.marker([-1.9634, 37.14245], { icon: distanceLabel }).addTo(map);
+      } catch (e) {
+        console.log("Map error:", e);
+      }
+    }
+
+    // ============================================
+    // 🖼️ TRY TO LOAD REAL IMAGE
+    // ============================================
+    function tryLoadRealImage() {
+      const heroImg = document.getElementById('hero-image');
+      if (heroImg) {
+        heroImg.src = 'assets/IMG-20250710-WA0039 (1).jpg';
+      }
+    }
+
+    // ============================================
     // 💘 YES/NO TOGGLE
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
+      // Initialize everything that doesn't need password
+      initGallery();
+      initReasons();
+      initFutureKidsSection();
+      
+      // Don't init countdown yet - wait for unlock
+      
+      // Password input enter key
+      const passwordInput = document.getElementById('password-input');
+      if (passwordInput) {
+        passwordInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            checkPassword();
+          }
+        });
+      }
+      
+      // YES/NO buttons
       const noBtn = document.getElementById('no-btn');
       const yesBtn = document.getElementById('yes-btn');
       const response = document.getElementById('valentine-response');
@@ -825,7 +1036,9 @@ But I did.
           const y = Math.random() * 200 - 100;
           this.style.transform = `translate(${x}px, ${y}px)`;
         });
-        noBtn.addEventListener('click', function() { unlockReason(); });
+        noBtn.addEventListener('click', function() { 
+          if (typeof unlockReason === 'function') unlockReason(); 
+        });
       }
       
       if (yesBtn) {
@@ -834,9 +1047,55 @@ But I did.
           createConfetti(50);
           this.style.transform = 'scale(1.2)';
           if (noBtn) noBtn.style.opacity = '0.5';
-          unlockReason();
+          if (typeof unlockReason === 'function') unlockReason();
         });
       }
+      
+      // Voice note button
+      const voiceBtn = document.getElementById('voice-note-btn');
+      const voiceAudio = document.getElementById('her-voice');
+      
+      if (voiceBtn && voiceAudio) {
+        voiceBtn.addEventListener('click', function() {
+          voiceAudio.play().catch(e => {
+            alert('🎙️ "I said yes, obviously." — Add your voice file to assets/her-voice.m4a');
+          });
+          if (typeof unlockReason === 'function') unlockReason();
+        });
+      }
+      
+      // Wax seal
+      const seal = document.getElementById('wax-seal');
+      if (seal) {
+        seal.addEventListener('click', function(e) {
+          e.preventDefault();
+          this.style.transform = 'scale(0.9)';
+          setTimeout(() => this.style.transform = '', 200);
+          
+          const secretMsg = document.createElement('div');
+          secretMsg.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-pink-100 to-white p-10 rounded-3xl shadow-2xl z-50 text-center border-4 border-pink-300';
+          secretMsg.style.animation = 'fadeInScale 0.3s ease, float 3s ease infinite';
+          secretMsg.innerHTML = `
+            <span class="text-7xl block mb-4">💌</span>
+            <h3 class="text-3xl font-bold mb-3" style="color: #ff8da1;">you broke the seal</h3>
+            <p class="text-gray-600 text-lg mb-2">so here's the unfiltered truth:</p>
+            <p class="text-gray-800 italic text-xl my-4" style="font-family: 'Playfair Display', serif;">
+              "i knew i loved you<br>the night you fell asleep on my shoulder<br>and i didn't move for two hours<br>because some moments are worth going numb for."
+            </p>
+            <button onclick="this.parentElement.remove(); createConfetti(30); if(typeof unlockReason === 'function') unlockReason();" 
+                    class="mt-4 px-6 py-2 bg-pink-400 text-white rounded-full hover:bg-pink-500 transition-colors">
+              seal it back 💕
+            </button>
+          `;
+          document.body.appendChild(secretMsg);
+          createConfetti(15);
+          if (typeof unlockReason === 'function') unlockReason();
+          setTimeout(() => { if (secretMsg.parentNode) secretMsg.remove(); }, 8000);
+        });
+      }
+      
+      // Try to load real image after page loads
+      setTimeout(tryLoadRealImage, 1000);
     });
 
     // ============================================
@@ -864,9 +1123,13 @@ But I did.
           : '<span class="w-3 h-3 bg-gray-200 rounded-full mx-0.5 unlock-progress-dot"></span>';
       }
       progressDiv.innerHTML = html;
-      document.getElementById('unlock-hint').innerHTML = unlockedCount < TOTAL_REASONS 
-        ? `✨ ${unlockedCount}/12 reasons unlocked — keep tapping hearts! ✨`
-        : `🎉 ALL 12 REASONS UNLOCKED! You've collected all my heart 🎉`;
+      
+      const hintEl = document.getElementById('unlock-hint');
+      if (hintEl) {
+        hintEl.innerHTML = unlockedCount < TOTAL_REASONS 
+          ? `✨ ${unlockedCount}/12 reasons unlocked — keep tapping hearts! ✨`
+          : `🎉 ALL 12 REASONS UNLOCKED! You've collected all my heart 🎉`;
+      }
       
       // Update reason cards
       const cards = document.querySelectorAll('#reasons-grid .memory-card');
@@ -883,7 +1146,7 @@ But I did.
           const front = card.querySelector('.front');
           const back = card.querySelector('.back');
           if (back && !back.classList.contains('hidden-memory')) {
-            front?.classList.remove('hidden');
+            if (front) front.classList.remove('hidden');
             back.classList.add('hidden-memory');
           }
         }
@@ -913,6 +1176,7 @@ But I did.
     function initGallery() {
       const gallery = document.getElementById('photo-gallery');
       if (gallery) {
+        gallery.innerHTML = ''; // Clear existing
         galleryPhotos.forEach((photo) => {
           const item = document.createElement('div');
           item.className = 'gallery-item';
@@ -922,13 +1186,17 @@ But I did.
               <div><p class="font-bold">${photo.caption}</p><p class="text-sm opacity-90">${photo.date}</p></div>
             </div>
           `;
-          item.addEventListener('click', () => { openLightbox(photo.url, photo.caption); unlockReason(); });
+          item.addEventListener('click', () => { 
+            openLightbox(photo.url, photo.caption); 
+            if (typeof unlockReason === 'function') unlockReason(); 
+          });
           gallery.appendChild(item);
         });
       }
 
       const polaroidWall = document.getElementById('polaroid-wall');
       if (polaroidWall) {
+        polaroidWall.innerHTML = ''; // Clear existing
         polaroids.forEach((p, i) => {
           const polaroid = document.createElement('div');
           polaroid.className = 'polaroid rounded-lg';
@@ -979,6 +1247,7 @@ But I did.
     function initReasons() {
       const grid = document.getElementById('reasons-grid');
       if (grid) {
+        grid.innerHTML = ''; // Clear existing
         reasons.forEach((reason, index) => {
           const card = document.createElement('div');
           card.className = 'card memory-card rounded-xl relative';
@@ -1030,8 +1299,11 @@ But I did.
       heart.style.animation = `float ${Math.random() * 3 + 2}s linear infinite`;
       heart.style.pointerEvents = 'none';
       heart.style.zIndex = '0';
-      document.getElementById('heart-bg').appendChild(heart);
-      setTimeout(() => heart.remove(), 6000);
+      const heartBg = document.getElementById('heart-bg');
+      if (heartBg) {
+        heartBg.appendChild(heart);
+        setTimeout(() => heart.remove(), 6000);
+      }
     }
     setInterval(createHeart, 500);
 
@@ -1065,8 +1337,10 @@ But I did.
       if (surpriseBtn) {
         surpriseBtn.addEventListener('click', function() {
           createConfetti(100);
-          unlockReason();
-          unlockReason();
+          if (typeof unlockReason === 'function') {
+            unlockReason();
+            unlockReason();
+          }
           
           const msg = document.createElement('div');
           msg.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-3xl shadow-2xl z-50 text-center';
@@ -1084,39 +1358,49 @@ But I did.
     });
 
     // ============================================
-    // ⏰ COUNTDOWN TIMER
+    // ⏰ LIVE COUNTDOWN TIMER (WITH SECONDS!)
     // ============================================
     function initCountdown() {
+      // Set your next visit date - CHANGE THIS!
       const nextVisit = new Date('March 15, 2026 10:00:00').getTime();
       
-      setInterval(() => {
+      function updateCountdown() {
         const now = new Date().getTime();
         const diff = nextVisit - now;
         
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const messageEl = document.getElementById('countdown-message');
+        
+        if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
+        
         if (diff > 0) {
-          document.getElementById('days').textContent = Math.floor(diff / (1000*60*60*24));
-          document.getElementById('hours').textContent = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-          document.getElementById('minutes').textContent = Math.floor((diff % (1000*60*60)) / (1000*60));
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          
+          daysEl.textContent = days;
+          hoursEl.textContent = hours.toString().padStart(2, '0');
+          minutesEl.textContent = minutes.toString().padStart(2, '0');
+          secondsEl.textContent = seconds.toString().padStart(2, '0');
+          if (messageEl) messageEl.innerHTML = 'every second brings me closer to you';
+        } else {
+          // Countdown finished!
+          daysEl.textContent = '00';
+          hoursEl.textContent = '00';
+          minutesEl.textContent = '00';
+          secondsEl.textContent = '00';
+          if (messageEl) messageEl.innerHTML = '🎉 SHE\'S HERE! 🎉';
         }
-      }, 1000);
-    }
-
-    // ============================================
-    // 🎙️ VOICE NOTE
-    // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
-      const voiceBtn = document.getElementById('voice-note-btn');
-      const voiceAudio = document.getElementById('her-voice');
-      
-      if (voiceBtn && voiceAudio) {
-        voiceBtn.addEventListener('click', function() {
-          voiceAudio.play().catch(e => {
-            alert('🎙️ "I said yes, obviously." — Add your voice file to assets/her-voice.m4a');
-          });
-          unlockReason();
-        });
       }
-    });
+      
+      // Update immediately, then every second
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    }
 
     // ============================================
     // 👶 FUTURE KIDS (YOUR EXACT CODE)
@@ -1281,67 +1565,28 @@ But I did.
     }
 
     // ============================================
-    // 💌 WAX SEAL
-    // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
-      const seal = document.getElementById('wax-seal');
-      if (seal) {
-        seal.addEventListener('click', function(e) {
-          e.preventDefault();
-          this.style.transform = 'scale(0.9)';
-          setTimeout(() => this.style.transform = '', 200);
-          
-          const secretMsg = document.createElement('div');
-          secretMsg.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-pink-100 to-white p-10 rounded-3xl shadow-2xl z-50 text-center border-4 border-pink-300';
-          secretMsg.style.animation = 'fadeInScale 0.3s ease, float 3s ease infinite';
-          secretMsg.innerHTML = `
-            <span class="text-7xl block mb-4">💌</span>
-            <h3 class="text-3xl font-bold mb-3" style="color: #ff8da1;">you broke the seal</h3>
-            <p class="text-gray-600 text-lg mb-2">so here's the unfiltered truth:</p>
-            <p class="text-gray-800 italic text-xl my-4" style="font-family: 'Playfair Display', serif;">
-              "i knew i loved you<br>the night you fell asleep on my shoulder<br>and i didn't move for two hours<br>because some moments are worth going numb for."
-            </p>
-            <button onclick="this.parentElement.remove(); createConfetti(30); unlockReason();" 
-                    class="mt-4 px-6 py-2 bg-pink-400 text-white rounded-full hover:bg-pink-500 transition-colors">
-              seal it back 💕
-            </button>
-          `;
-          document.body.appendChild(secretMsg);
-          createConfetti(15);
-          unlockReason();
-          setTimeout(() => { if (secretMsg.parentNode) secretMsg.remove(); }, 8000);
-        });
-      }
-    });
-
-    // ============================================
     // ✨ ADD KEYFRAME ANIMATIONS
     // ============================================
-    const styleSheet = document.createElement('style');
-    styleSheet.textContent = `
-      @keyframes fall { to { transform: translateY(100vh) rotate(360deg); } }
-      @keyframes fadeInScale { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
-      @keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
-      .animate-blink { animation: blink 1s step-end infinite; }
-    `;
-    document.head.appendChild(styleSheet);
+    (function addAnimations() {
+      const styleSheet = document.createElement('style');
+      styleSheet.textContent = `
+        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); } }
+        @keyframes fadeInScale { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+        @keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+        .animate-blink { animation: blink 1s step-end infinite; }
+      `;
+      document.head.appendChild(styleSheet);
+    })();
 
     // ============================================
-    // 🚀 INITIALIZE EVERYTHING
+    // 🚀 MAKE SURE TYPING IS AVAILABLE GLOBALLY
     // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
-      initGallery();
-      initReasons();
-      initFutureKidsSection();
-      initCountdown();
-      
-      document.getElementById('password-input')?.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') checkPassword();
-      });
-      
-      // Try to load real image after page loads
-      setTimeout(tryLoadRealImage, 1000);
-    });
+    window.startTyping = startTyping;
+    window.startTypingFallback = startTypingFallback;
+    window.checkPassword = checkPassword;
+    window.closeLightbox = closeLightbox;
+    window.unlockReason = unlockReason;
+    window.createConfetti = createConfetti;
   </script>
 </body>
 </html>
