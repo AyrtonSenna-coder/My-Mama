@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>for my valentine 🤍</title>
+  <!-- Google Fonts + Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Quicksand:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(145deg, #fff9f9 0%, #fff1f1 100%);
+      color: #4a4a4a;
+      overflow-x: hidden;
+      transition: all 0.5s ease;
+    }
+    body.unlocked {
+      overflow-y: auto;
+    }
+    body.locked {
+      overflow-y: hidden;
+    }
+    h1, h2, h3 {
+      font-family: 'Playfair Display', serif;
+    }
+    .heart {
+      color: #ffb7c5;
+      transition: all 0.3s ease;
+    }
+    .heart:hover {
+      color: #ff8da1;
+      transform: scale(1.1);
+    }
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    .card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 192, 203, 0.3);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card:hover {
+      background: white;
+      border-color: #ffb7c5;
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(255, 183, 197, 0.2);
+    }
+    .memory-card {
+      cursor: pointer;
+      min-height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 1.5rem;
+    }
+    .hidden-memory {
+      display: none;
+    }
+    .typing {
+      border-right: 3px solid #ff8da1;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink {
+      from, to { border-color: transparent; }
+      50% { border-color: #ff8da1; }
+    }
+    .polaroid {
+      background: white;
+      padding: 1rem 1rem 2rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      transform: rotate(var(--rotate, 0deg));
+      transition: all 0.3s ease;
+    }
+    .polaroid:hover {
+      transform: rotate(0deg) scale(1.05);
+      box-shadow: 0 20px 40px rgba(255, 183, 197, 0.3);
+    }
+    
+    /* Password Gate */
+    .gate-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: linear-gradient(145deg, #ffd1d1 0%, #ffb7c5 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .gate-container.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .gate-box {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      padding: 3rem;
+      border-radius: 2rem;
+      box-shadow: 0 30px 60px rgba(255, 109, 133, 0.3);
+      max-width: 450px;
+      width: 90%;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Photo Gallery */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+    .gallery-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 1rem;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .gallery-item:hover img {
+      transform: scale(1.1);
+    }
+    .gallery-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to top, rgba(255, 141, 161, 0.9), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: flex-end;
+      padding: 1rem;
+      color: white;
+      font-weight: 500;
+    }
+    .gallery-item:hover .gallery-overlay {
+      opacity: 1;
+    }
+    
+    /* Lightbox */
+    .lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    .lightbox.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .lightbox-content {
+      max-width: 90%;
+      max-height: 90vh;
+      position: relative;
+    }
+    .lightbox-content img {
+      max-width: 100%;
+      max-height: 85vh;
+      border-radius: 1rem;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      padding: 10px;
+    }
+    
+    /* YES/NO Toggle */
+    .valentine-toggle {
+      background: linear-gradient(135deg, #ff8da1, #ffb7c5);
+      padding: 3rem 2rem;
+      border-radius: 2rem;
+      color: white;
+    }
+    .no-btn {
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    .no-btn:hover {
+      transform: translateX(calc(var(--random-x, 50px) * 1)) translateY(calc(var(--random-y, -30px) * 1));
+    }
+    
+    /* Music Player */
+    .music-player {
+      background: white;
+      border-radius: 1rem;
+      padding: 0.75rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    /* Domain Setup Info */
+    .domain-setup {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-20px); }
+      75% { transform: translateX(20px); }
+    }
+    .shake {
+      animation: shake 0.5s ease;
+    }
+  </style>
+</head>
+<body class="locked relative min-h-screen">
+
+  <!-- 🚪 PASSWORD GATE - Customize with your anniversary/her bday -->
+  <div id="gate" class="gate-container">
+    <div class="gate-box floating">
+      <span class="text-7xl block mb-4">🔐</span>
+      <h1 class="text-3xl md:text-4xl font-bold mb-4" style="color: #ff8da1;">
+        for your eyes only
+      </h1>
+      <p class="text-gray-600 mb-6">enter the date we became us</p>
+      <div class="space-y-4">
+        <input 
+          type="text" 
+          id="password-input" 
+          placeholder="DDMMYYYY" 
+          class="w-full px-5 py-3 rounded-full border-2 border-pink-200 focus:border-pink-400 outline-none text-center text-lg"
+          autofocus
+        >
+        <button 
+          onclick="checkPassword()" 
+          class="w-full px-6 py-3 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-full font-semibold hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+        >
+          unlock my heart 💝
+        </button>
+        <p id="password-error" class="text-red-500 text-sm hidden">wrong date, try again darling 💔</p>
+      </div>
+      <p class="text-xs text-gray-400 mt-6">*hint: the day we became official</p>
+    </div>
+  </div>
+
+  <!-- Floating Hearts Background -->
+  <div class="fixed inset-0 pointer-events-none" id="heart-bg"></div>
+
+  <!-- Main Content (Hidden until unlocked) -->
+  <div id="main-content" class="relative max-w-6xl mx-auto px-4 py-12 opacity-0 transition-opacity duration-1000">
+    
+    <!-- Hero Section -->
+    <div class="text-center mb-20 floating">
+      <span class="text-7xl mb-4 block heart animate-pulse">🫀</span>
+      <h1 class="text-5xl md:text-7xl font-bold mb-4" style="color: #2d2d2d;">
+        for my <span id="her-name" style="color: #ff8da1;">Mama (Mrs Joey Senna)</span>
+      </h1>
+      <div class="flex items-center justify-center gap-2 text-xl md:text-2xl text-gray-600">
+        <span>you are my</span>
+        <span id="typing-text" class="font-semibold typing" style="color: #ff8da1;"></span>
+      </div>
+    </div>
+
+    <!-- 💘 WILL YOU BE MY VALENTINE? TOGGLE -->
+    <section class="mb-24">
+      <div class="valentine-toggle rounded-3xl shadow-2xl text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6 text-white drop-shadow-lg">
+          will you be my valentine? 💌
+        </h2>
+        <div class="flex items-center justify-center gap-6 flex-wrap">
+          <button id="yes-btn" class="px-10 py-4 bg-white text-pink-500 rounded-full text-xl font-bold shadow-xl transform hover:scale-110 transition-all duration-300 hover:shadow-2xl">
+            YES 💖
+          </button>
+          <button id="no-btn" class="no-btn px-10 py-4 bg-gray-200 text-gray-700 rounded-full text-xl font-bold shadow-xl transition-all duration-200">
+            NO 😤
+          </button>
+        </div>
+        <div id="valentine-response" class="mt-6 text-2xl font-bold text-white hidden">
+          🎉 YAY! you just made me the happiest person ever! 🎉
+        </div>
+      </div>
+    </section>
+
+    <!-- Our Timeline -->
+    <section class="mb-24">
+      <h2 class="text-3xl md:text-4xl font-bold text-center mb-12" style="color: #2d2d2d;">
+        our little story <span class="heart">❤️</span>
+      </h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="card p-6 rounded-2xl">
+          <span class="text-4xl mb-3 block">👋</span>
+          <h3 class="text-xl font-bold mb-2">the meet</h3>
+          <p class="text-gray-600">[Kabondo Kasipul] — instant butterflies</p>
+          <p class="text-xs text-gray-400 mt-2">[24/05/2025]</p>
+        </div>
+        <div class="card p-6 rounded-2xl">
+          <span class="text-4xl mb-3 block">✨</span>
+          <h3 class="text-xl font-bold mb-2">the moment</h3>
+          <p class="text-gray-600">[when you knew she was special]</p>
+          <p class="text-xs text-gray-400 mt-2">[24/05/2025]</p>
+        </div>
+        <div class="card p-6 rounded-2xl">
+          <span class="text-4xl mb-3 block">🌟</span>
+          <h3 class="text-xl font-bold mb-2">right now</h3>
+          <p class="text-gray-600">still falling, every single day</p>
+          <p class="text-xs text-gray-400 mt-2">[14/02/2026]</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 Reasons I Love You (Interactive Cards) -->
+    <section class="mb-24">
+      <h2 class="text-3xl md:text-4xl font-bold text-center mb-4" style="color: #2d2d2d;">
+        12 reasons i <span class="heart">❤️</span> you
+      </h2>
+      <p class="text-center text-gray-500 mb-10">tap each card to reveal</p>
+      
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="reasons-grid"></div>
+    </section>
+
+    <!-- 📸 PHOTO GALLERY - Add your pics here -->
+    <section class="mb-24">
+      <h2 class="text-3xl md:text-4xl font-bold text-center mb-4" style="color: #2d2d2d;">
+        our photo diary <span class="heart">📸</span>
+      </h2>
+      <p class="text-center text-gray-500 mb-10">every click is a core memory</p>
+      
+      <div id="photo-gallery" class="gallery-grid">
+        <!-- Gallery will be populated by JavaScript -->
+      </div>
+      
+      <!-- Lightbox -->
+      <div id="lightbox" class="lightbox">
+        <div class="lightbox-content">
+          <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+          <img id="lightbox-img" src="" alt="">
+        </div>
+      </div>
+    </section>
+
+    <!-- Polaroid Wall - Classic -->
+    <section class="mb-24">
+      <h2 class="text-3xl md:text-4xl font-bold text-center mb-12" style="color: #2d2d2d;">
+        memories on display <span class="heart">🎞️</span>
+      </h2>
+      <div class="grid md:grid-cols-3 gap-8" id="polaroid-wall">
+        <!-- Polaroids will be populated -->
+      </div>
+    </section>
+
+    <!-- Love Letter -->
+    <section class="mb-24">
+      <div class="card max-w-2xl mx-auto p-8 md:p-12 rounded-3xl">
+        <span class="text-3xl block text-center mb-4">💌</span>
+        <h2 class="text-2xl md:text-3xl font-bold text-center mb-6" style="color: #2d2d2d;">
+          a little letter
+        </h2>
+        <div class="prose prose-lg text-gray-600 space-y-4" style="font-family: 'Playfair Display', serif;">
+          <p>my love,</p>
+          <p>i built this little corner of the internet just for you — because you deserve a love that's custom-coded, not copy-pasted.</p>
+          <p>every time i'm with you, it's like my heart learns a new color. thank you for being you. thank you for choosing me.</p>
+          <p>you're my favorite notification, my home screen, my forever bookmark.</p>
+          <p class="text-right mt-8" style="color: #ff8da1;">yours, Muffin</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 🎵 SPOTIFY PLAYLIST EMBED -->
+    <section class="mb-24">
+      <div class="max-w-2xl mx-auto">
+        <h2 class="text-2xl md:text-3xl font-bold text-center mb-6" style="color: #2d2d2d;">
+          our soundtrack 🎧
+        </h2>
+        <div class="music-player">
+          <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/0irhYypkLi84M4sb9qHinP?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        </div>
+        <p class="text-center text-gray-400 text-sm mt-3">songs that remind me of you</p>
+      </div>
+    </section>
+
+        <!-- 👶 SECRET FUTURE KIDS NAMES SECTION (Hidden until password + special click) -->
+    <section id="future-kids-section" class="mb-24 relative opacity-0 transform translate-y-10 transition-all duration-1000">
+      <!-- Secret decoder ring -->
+      <div class="absolute -top-12 right-0 text-4xl cursor-pointer hover:scale-110 transition-transform" id="baby-rattle" title="shake shake shake">
+        🍼
+      </div>
+      
+      <div class="bg-gradient-to-br from-blue-50 to-pink-50 rounded-3xl p-8 md:p-12 border-2 border-dashed border-pink-300 relative overflow-hidden">
+        
+        <!-- Floating baby emojis background -->
+        <div class="absolute inset-0 pointer-events-none opacity-10">
+          <span class="absolute top-10 left-10 text-7xl">👶</span>
+          <span class="absolute bottom-10 right-10 text-7xl">🍼</span>
+          <span class="absolute top-20 right-20 text-6xl">🧸</span>
+          <span class="absolute bottom-20 left-20 text-6xl">👣</span>
+        </div>
+        
+        <div class="relative z-10">
+          <!-- Header with lock icon -->
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <span class="text-4xl block mb-2">👶💭</span>
+              <h2 class="text-3xl md:text-4xl font-bold" style="color: #2d2d2d;">
+                our future <span style="color: #ff8da1;">little ones</span>
+              </h2>
+              <p class="text-gray-500 mt-2">secret section — shh, don't tell future them 🤫</p>
+            </div>
+            <div id="kids-lock" class="text-3xl bg-white/80 backdrop-blur p-4 rounded-full shadow-lg cursor-pointer hover:scale-110 transition-transform">
+              🔒
+            </div>
+          </div>
+          
+          <!-- Locked Content -->
+          <div id="kids-locked-content" class="text-center py-12">
+            <span class="text-6xl mb-4 block opacity-50">👶🔒</span>
+            <p class="text-gray-400 text-lg mb-4">this section is locked for now...</p>
+            <button id="unlock-kids-btn" class="px-6 py-3 bg-gradient-to-r from-blue-400 to-pink-400 text-white rounded-full font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+              tap to unlock 👆
+            </button>
+            <p class="text-xs text-gray-400 mt-4">*hint: try 3 times, it's our inside number</p>
+          </div>
+          
+          <!-- Unlocked Content (Hidden Initially) -->
+          <div id="kids-unlocked-content" class="hidden">
+            <!-- Baby Count Selector -->
+            <div class="mb-10 text-center">
+              <p class="text-sm uppercase tracking-wider text-gray-400 mb-3">how many mini us?</p>
+              <div class="flex items-center justify-center gap-4">
+                <button id="decrease-kids" class="w-12 h-12 rounded-full bg-white shadow-md text-2xl hover:bg-pink-100 transition-colors">-</button>
+                <span id="kid-count" class="text-5xl font-bold w-20 text-center" style="color: #ff8da1;">2</span>
+                <button id="increase-kids" class="w-12 h-12 rounded-full bg-white shadow-md text-2xl hover:bg-pink-100 transition-colors">+</button>
+              </div>
+            </div>
+            
+            <!-- Future Kids Names Grid -->
+            <div id="kids-names-container" class="grid md:grid-cols-2 gap-6 mb-8">
+              <!-- Dynamically populated by JS -->
+            </div>
+            
+            <!-- Boy/Girl Mix Toggle -->
+            <div class="flex items-center justify-center gap-6 mb-8">
+              <span class="text-gray-600">👦 more boys</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="gender-toggle" class="sr-only peer">
+                <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-pink-400 peer-checked:to-blue-400"></div>
+              </label>
+              <span class="text-gray-600">👧 more girls</span>
+            </div>
+            
+            <!-- Future Letter to Kids -->
+            <div class="bg-white/80 backdrop-blur rounded-2xl p-6 mt-6">
+              <div class="flex items-center gap-3 mb-4">
+                <span class="text-2xl">💌</span>
+                <h3 class="text-xl font-semibold" style="color: #2d2d2d;">a letter to our future babies</h3>
+              </div>
+              <p class="text-gray-600 italic mb-4" id="future-kids-letter">
+                dear little ones, your mom is the reason i believe in magic. i hope you have her laugh, her heart, and her ability to make a home out of anywhere. can't wait to meet you someday. 🌙
+              </p>
+              <div class="flex justify-end">
+                <button id="randomize-letter" class="text-sm text-pink-400 hover:text-pink-600 transition-colors">
+                  shuffle sentiment 🔄
+                </button>
+              </div>
+            </div>
+            
+            <!-- Dream Baby Names List (Inspired by her) -->
+            <div class="mt-8 text-center">
+              <p class="text-xs text-gray-400">
+                ✨ names inspired by her: [her middle name], [her mom's name], [her favorite flower]
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Surprise Button -->
+    <div class="text-center mb-20">
+      <button id="surprise-btn" class="group relative px-10 py-5 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-full text-xl font-semibold shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+        <span class="relative z-10">tap for a surprise 🎁</span>
+        <span class="absolute inset-0 bg-white rounded-full opacity-0 group-hover:opacity-20 transition-opacity"></span>
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    // ============================================
+    // 🔐 PASSWORD PROTECTION - CUSTOMIZE THIS!
+    // ============================================
+    const CORRECT_PASSWORD = "24052025"; // CHANGE THIS to your anniversary (DDMMYYYY)
+    const HER_NAME = "Mama"; // CHANGE THIS to her name
+    const YOUR_NAME = "Senna"; // CHANGE THIS to your name
+    
+    function checkPassword() {
+      const input = document.getElementById('password-input').value;
+      const error = document.getElementById('password-error');
+      
+      if (input === CORRECT_PASSWORD) {
+        document.getElementById('gate').classList.add('hidden');
+        document.body.classList.remove('locked');
+        document.body.classList.add('unlocked');
+        document.getElementById('main-content').style.opacity = '1';
+        
+        // Update names throughout the site
+        document.getElementById('her-name').textContent = HER_NAME;
+        document.querySelectorAll('.prose p:last-child').forEach(el => {
+          el.innerHTML = `yours, ${YOUR_NAME}`;
+        });
+        
+        // Start animations
+        createConfetti(100);
+        startTyping();
+      } else {
+        error.classList.remove('hidden');
+        document.getElementById('password-input').classList.add('shake');
+        setTimeout(() => {
+          document.getElementById('password-input').classList.remove('shake');
+        }, 500);
+      }
+    }
+
+    // ============================================
+    // 💘 YES/NO TOGGLE - NO BUTTON RUNS AWAY
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+      const noBtn = document.getElementById('no-btn');
+      const yesBtn = document.getElementById('yes-btn');
+      const response = document.getElementById('valentine-response');
+      
+      if (noBtn) {
+        noBtn.addEventListener('mouseover', function(e) {
+          const x = Math.random() * 200 - 100;
+          const y = Math.random() * 200 - 100;
+          this.style.transform = `translate(${x}px, ${y}px)`;
+          this.style.transition = 'all 0.2s ease';
+        });
+      }
+      
+      if (yesBtn) {
+        yesBtn.addEventListener('click', function() {
+          response.classList.remove('hidden');
+          createConfetti(50);
+          yesBtn.style.transform = 'scale(1.2)';
+          if (noBtn) noBtn.style.opacity = '0.5';
+        });
+      }
+    });
+
+    // ============================================
+    // 📸 PHOTO GALLERY - ADD YOUR PICS HERE!
+    // ============================================
+    const galleryPhotos = [
+      {
+        url: "D:\User\Documents\Ayrton\Project 2025\Surprise\IMG_20250710_145734.jpg",
+        caption: "first date 🥰",
+        date: "July 2025"
+      },
+      {
+        url: "https://placehold.co/400x400/ff8da1/ffffff?text=her+birthday",
+        caption: "her birthday 🎂",
+        date: "May 2025"
+      },
+      {
+        url: "https://placehold.co/400x400/ffb7c5/ffffff?text=beach+day",
+        caption: "beach day 🌊",
+        date: "Jul 2023"
+      },
+      {
+        url: "D:\User\Documents\Ayrton\Project 2025\Surprise\IMG_20250824_180300.jpg",
+        caption: "3 Month's Anniversary ☕",
+        date: "August 2025"
+      },
+      {
+        url: "D:\User\Documents\Ayrton\Project 2025\Surprise\IMG_20250824_183141.jpg",
+        caption: "just us 🤍",
+        date: "August 2025"
+      },
+      
+    ];
+
+    // ============================================
+    // 📸 POLAROID MEMORIES
+    // ============================================
+    const polaroids = [
+      { emoji: "🥰", title: "first date", date: "July 2025" },
+      { emoji: "🎂", title: "her birthday", date: "May" },
+      { emoji: "🌊", title: "beach day", date: "Pending" },
+      { emoji: "☕", title: "coffee mornings", date: "every day" },
+      { emoji: "🎬", title: "movie nights", date: "always" },
+      { emoji: "✨", title: "just because", date: "all the time" }
+    ];
+
+    // Populate gallery
+    function initGallery() {
+      const gallery = document.getElementById('photo-gallery');
+      if (gallery) {
+        galleryPhotos.forEach((photo, index) => {
+          const item = document.createElement('div');
+          item.className = 'gallery-item';
+          item.innerHTML = `
+            <img src="${photo.url}" alt="${photo.caption}" loading="lazy">
+            <div class="gallery-overlay">
+              <div>
+                <p class="font-bold">${photo.caption}</p>
+                <p class="text-sm opacity-90">${photo.date}</p>
+              </div>
+            </div>
+          `;
+          item.addEventListener('click', () => openLightbox(photo.url, photo.caption));
+          gallery.appendChild(item);
+        });
+      }
+
+      // Populate polaroids
+      const polaroidWall = document.getElementById('polaroid-wall');
+      if (polaroidWall) {
+        polaroids.forEach((p, i) => {
+          const polaroid = document.createElement('div');
+          polaroid.className = 'polaroid rounded-lg';
+          polaroid.style.setProperty('--rotate', `${(i % 2 === 0 ? -2 : 3)}deg`);
+          polaroid.innerHTML = `
+            <div class="h-48 bg-gradient-to-br from-pink-100 to-pink-200 rounded-md mb-3 flex items-center justify-center text-6xl">
+              ${p.emoji}
+            </div>
+            <p class="text-center text-gray-700 font-medium">${p.title}</p>
+            <p class="text-center text-xs text-gray-400">${p.date}</p>
+          `;
+          polaroidWall.appendChild(polaroid);
+        });
+      }
+    }
+
+    // Lightbox functions
+    function openLightbox(imgSrc, caption) {
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = document.getElementById('lightbox-img');
+      lightboxImg.src = imgSrc;
+      lightboxImg.alt = caption;
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    // ============================================
+    // 💝 12 REASONS - MAKE IT PERSONAL!
+    // ============================================
+    const reasons = [
+      "Your laugh could cure my worst day 🎵",
+      "Because in a loud world, you are my quiet place. When everything feels heavy, your presence feels like exhale. 🍟",
+      "Because you listen to the parts of me I don’t show everyone. You don’t just hear my words — you understand my silences.🐱",
+      "Because you see who I’m becoming — and you’re not afraid of that future. 🎤",
+      "Your 3am deep thoughts 🌙",
+      "You remember the small things 📝",
+      "You're pretty and You don't even know it ✨",
+      "Because you choose me. Not halfway. Not temporarily. Fully. 🦋",
+      "Because you make strength feel soft. With you, I don’t have to armor up. I can just be. 😴",
+      "you make ordinary days feel like adventures 🗺️",
+      "Because you speak life over me. Your prayers, your wishes, your hope for me — I feel them.🌿",
+      "You. just You. all of You. And I don’t just love you for who you are today… I love you for every version of us we haven’t met yet.” 🫀"
+    ];
+
+    // Populate reasons grid
+    function initReasons() {
+      const grid = document.getElementById('reasons-grid');
+      if (grid) {
+        reasons.forEach((reason, index) => {
+          const card = document.createElement('div');
+          card.className = 'card memory-card rounded-xl relative';
+          card.innerHTML = `
+            <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-pink-100 to-pink-200 rounded-xl text-4xl front">
+              ${index + 1}
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center p-4 text-sm hidden-memory back text-gray-700 rounded-xl bg-white/95 backdrop-blur-sm">
+              ${reason}
+            </div>
+          `;
+          
+          card.addEventListener('click', function(e) {
+            const front = this.querySelector('.front');
+            const back = this.querySelector('.back');
+            front.classList.toggle('hidden');
+            back.classList.toggle('hidden-memory');
+            
+            if (!back.classList.contains('hidden-memory')) {
+              createConfetti(10);
+            }
+          });
+          
+          grid.appendChild(card);
+        });
+      }
+    }
+
+    // ============================================
+    // ⌨️ TYPING ANIMATION
+    // ============================================
+    function startTyping() {
+      const phrases = ["sunshine", "safe space", "best friend", "favorite person", "home", "everything"];
+      let i = 0;
+      let j = 0;
+      let currentPhrase = [];
+      let isDeleting = false;
+      let isEnd = false;
+
+      function loop() {
+        isEnd = false;
+        const typingElement = document.getElementById('typing-text');
+        if (typingElement) {
+          typingElement.innerHTML = currentPhrase.join('');
+          
+          if (i < phrases.length) {
+            if (!isDeleting && j <= phrases[i].length) {
+              currentPhrase.push(phrases[i][j]);
+              j++;
+            }
+
+            if (isDeleting && j <= phrases[i].length) {
+              currentPhrase.pop();
+              j--;
+            }
+
+            if (j == phrases[i].length) {
+              isEnd = true;
+              isDeleting = true;
+            }
+
+            if (isDeleting && j === 0) {
+              currentPhrase = [];
+              isDeleting = false;
+              i++;
+              if (i == phrases.length) {
+                i = 0;
+              }
+            }
+          }
+          
+          const spedUp = Math.random() * (80 - 50) + 50;
+          const normalSpeed = Math.random() * (300 - 200) + 200;
+          const time = isEnd ? 2000 : isDeleting ? spedUp : normalSpeed;
+          setTimeout(loop, time);
+        }
+      }
+      loop();
+    }
+
+    // ============================================
+    // ❤️ FLOATING HEARTS
+    // ============================================
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.innerHTML = '❤️';
+      heart.style.position = 'fixed';
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.top = '100vh';
+      heart.style.fontSize = (Math.random() * 30 + 10) + 'px';
+      heart.style.opacity = Math.random() * 0.5 + 0.3;
+      heart.style.animation = `float ${Math.random() * 3 + 2}s linear infinite`;
+      heart.style.pointerEvents = 'none';
+      heart.style.zIndex = '0';
+      document.getElementById('heart-bg').appendChild(heart);
+      
+      setTimeout(() => {
+        heart.remove();
+      }, 6000);
+    }
+
+    setInterval(createHeart, 500);
+
+    // ============================================
+    // 🎉 CONFETTI EFFECT
+    // ============================================
+    function createConfetti(count = 20) {
+      const emojis = ['❤️', '💖', '💕', '💗', '💓', '🌸', '✨', '🎀'];
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const confetti = document.createElement('div');
+          confetti.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+          confetti.style.position = 'fixed';
+          confetti.style.left = Math.random() * 100 + 'vw';
+          confetti.style.top = '-10px';
+          confetti.style.fontSize = (Math.random() * 25 + 15) + 'px';
+          confetti.style.animation = `fall ${Math.random() * 3 + 2}s linear`;
+          confetti.style.pointerEvents = 'none';
+          confetti.style.zIndex = '9999';
+          document.body.appendChild(confetti);
+          
+          setTimeout(() => {
+            confetti.remove();
+          }, 5000);
+        }, i * 50);
+      }
+    }
+
+    // ============================================
+    // 🎁 SURPRISE BUTTON
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+      const surpriseBtn = document.getElementById('surprise-btn');
+      if (surpriseBtn) {
+        surpriseBtn.addEventListener('click', function() {
+          createConfetti(100);
+          
+          // Show cute message
+          const msg = document.createElement('div');
+          msg.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-3xl shadow-2xl z-50 text-center animate-bounce';
+          msg.style.animation = 'float 3s ease infinite';
+          msg.innerHTML = `
+            <span class="text-6xl block mb-4">🎁</span>
+            <h3 class="text-2xl font-bold text-pink-500 mb-2">SURPRISE!</h3>
+            <p class="text-gray-600">you're the best thing that ever happened to me 🥹</p>
+            <p class="text-gray-400 text-sm mt-4">now go smile you beautiful human</p>
+          `;
+          document.body.appendChild(msg);
+          
+          setTimeout(() => {
+            msg.remove();
+          }, 4000);
+        });
+      }
+    });
+
+    // Add keyframe animation for falling
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fall {
+        to {
+          transform: translateY(100vh) rotate(360deg);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Initialize everything when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      initGallery();
+      initReasons();
+      
+      // Enter key for password
+      document.getElementById('password-input')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          checkPassword();
+        }
+      });
+    });
+
+        // ============================================
+    // 👶 SECRET FUTURE KIDS NAMES SECTION
+    // ============================================
+    
+    // Customize these based on HER preferences!
+    const FUTURE_KIDS_DATA = {
+      min: 1,
+      max: 5,
+      defaultCount: 2,
+      
+      // Girl names she likes / would be cute
+      girlNames: [
+        "Luna",
+        "Iris", 
+        "Nova",
+        "Hazel",
+        "Willow",
+        "Stella",
+        "Violet",
+        "June",
+        "Clementine",
+        "Daisy",
+        "Ruby",
+        "Ivy",
+        "Penelope",
+        "Aurora",
+        "Lily"
+      ],
+      
+      // Boy names she likes / would be cute
+      boyNames: [
+        "Leo",
+        "Jasper",
+        "Finn",
+        "Theo",
+        "Milo",
+        "Ezra",
+        "Silas",
+        "Arlo",
+        "Felix",
+        "August",
+        "River",
+        "Atlas",
+        "Jude",
+        "Otis",
+        "Wren"
+      ],
+      
+      // Neutral/extra special names
+      specialNames: [
+        "Sage",
+        "Riley",
+        "Quinn",
+        "Rowan",
+        "Emerson",
+        "Morgan",
+        "Avery",
+        "Blake",
+        "Casey",
+        "Jordan"
+      ],
+      
+      // Sweet letters to future kids
+      letters: [
+        "dear little one, your mom is the reason i believe in magic. i hope you have her laugh, her heart, and her ability to make a home out of anywhere. 🌙",
+        "to our future babies: i didn't know i could love someone i haven't met yet, but here we are. your mom already talks about you in her sleep. 🥹",
+        "hey tiny human, your mom's kindness is gonna be your superpower. also, get ready for unlimited cuddles and dad jokes. 📼",
+        "psst, future kid: your mom cried watching a dog adoption commercial yesterday. you're gonna be so loved it's insane. 🐾",
+        "dear baby [last name], your mom has been practicing her lullabies. they're terrible. it's adorable. 🎵",
+        "to our mini us: your mom's patience is endless. she waited for me, and she'll wait for you too. you're worth every second. ⏳",
+        "future child, your mom already has a photo album ready for you. it's called 'reasons to smile.' you're already in it. 📸"
+      ],
+      
+      // Her special things to inspire names
+      herInspirations: {
+        middleName: "Marie", // CHANGE THIS
+        momName: "Patricia", // CHANGE THIS
+        favoriteFlower: "Peony", // CHANGE THIS
+        birthFlower: "Rose", // CHANGE THIS
+        favoriteCity: "Paris", // CHANGE THIS
+        favoriteCharacter: "Elle Woods" // CHANGE THIS
+      }
+    };
+
+    let currentKidCount = FUTURE_KIDS_DATA.defaultCount;
+    let currentGenderMix = 'balanced'; // 'more-girls', 'more-boys', 'balanced'
+    let kidsUnlocked = false;
+    let unlockAttempts = 0;
+    const SECRET_UNLOCK_NUMBER = 3; // CHANGE THIS to your inside number
+
+    // Initialize future kids section
+    function initFutureKidsSection() {
+      const section = document.getElementById('future-kids-section');
+      if (!section) return;
+      
+      // Show section with animation after main content loads
+      setTimeout(() => {
+        section.style.opacity = '1';
+        section.style.transform = 'translateY(0)';
+      }, 1500);
+      
+      // Unlock button handler
+      const unlockBtn = document.getElementById('unlock-kids-btn');
+      if (unlockBtn) {
+        unlockBtn.addEventListener('click', function() {
+          unlockAttempts++;
+          
+          if (unlockAttempts >= SECRET_UNLOCK_NUMBER) {
+            unlockKidsSection();
+          } else {
+            // Cute hint messages
+            const hints = [
+              "not yet... try again! 🍼",
+              "almost there... 🤞",
+              `one more time! (${unlockAttempts}/${SECRET_UNLOCK_NUMBER}) ✨`
+            ];
+            this.textContent = hints[unlockAttempts - 1] || "tap to unlock 👆";
+            this.classList.add('shake');
+            setTimeout(() => this.classList.remove('shake'), 500);
+            
+            // Create mini confetti
+            createConfetti(5);
+          }
+        });
+      }
+      
+      // Baby rattle easter egg
+      const rattle = document.getElementById('baby-rattle');
+      if (rattle) {
+        let shakeCount = 0;
+        rattle.addEventListener('click', function() {
+          shakeCount++;
+          this.style.animation = 'shake 0.5s ease';
+          setTimeout(() => this.style.animation = '', 500);
+          
+          if (shakeCount === 3) {
+            // Secret message!
+            alert('👶🧸 "i hope they have your eyes" — future dad energy');
+            createConfetti(20);
+            shakeCount = 0;
+          }
+        });
+      }
+      
+      // Kid count controls
+      document.getElementById('decrease-kids')?.addEventListener('click', function() {
+        if (currentKidCount > FUTURE_KIDS_DATA.min) {
+          currentKidCount--;
+          updateKidCount();
+        }
+      });
+      
+      document.getElementById('increase-kids')?.addEventListener('click', function() {
+        if (currentKidCount < FUTURE_KIDS_DATA.max) {
+          currentKidCount++;
+          updateKidCount();
+        }
+      });
+      
+      // Gender toggle
+      document.getElementById('gender-toggle')?.addEventListener('change', function(e) {
+        if (e.target.checked) {
+          currentGenderMix = 'more-girls';
+        } else {
+          currentGenderMix = 'more-boys';
+        }
+        updateKidsNames();
+      });
+      
+      // Randomize letter
+      document.getElementById('randomize-letter')?.addEventListener('click', function() {
+        const letterEl = document.getElementById('future-kids-letter');
+        const randomIndex = Math.floor(Math.random() * FUTURE_KIDS_DATA.letters.length);
+        letterEl.style.opacity = '0';
+        setTimeout(() => {
+          letterEl.textContent = FUTURE_KIDS_DATA.letters[randomIndex];
+          letterEl.style.opacity = '1';
+        }, 200);
+        createConfetti(8);
+      });
+    }
+
+    function unlockKidsSection() {
+      if (kidsUnlocked) return;
+      
+      kidsUnlocked = true;
+      const lockedContent = document.getElementById('kids-locked-content');
+      const unlockedContent = document.getElementById('kids-unlocked-content');
+      const lockIcon = document.getElementById('kids-lock');
+      
+      lockedContent.style.opacity = '0';
+      setTimeout(() => {
+        lockedContent.classList.add('hidden');
+        unlockedContent.classList.remove('hidden');
+        unlockedContent.style.opacity = '0';
+        setTimeout(() => unlockedContent.style.opacity = '1', 50);
+        lockIcon.innerHTML = '🔓';
+      }, 300);
+      
+      // Initial population
+      updateKidCount();
+      
+      // Celebration!
+      createConfetti(50);
+      
+      // Play baby sound? (optional)
+      console.log('👶 future unlocked!');
+    }
+
+    function updateKidCount() {
+      document.getElementById('kid-count').textContent = currentKidCount;
+      updateKidsNames();
+    }
+
+    function updateKidsNames() {
+      const container = document.getElementById('kids-names-container');
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      // Generate names based on gender mix
+      for (let i = 0; i < currentKidCount; i++) {
+        const nameCard = document.createElement('div');
+        nameCard.className = 'bg-white/90 backdrop-blur rounded-2xl p-5 shadow-md hover:shadow-xl transition-all duration-300 transform hover:scale-105';
+        
+        let name;
+        let gender;
+        
+        // Smart name picking based on toggle
+        if (currentGenderMix === 'more-girls') {
+          gender = Math.random() < 0.7 ? 'girl' : 'boy';
+        } else if (currentGenderMix === 'more-boys') {
+          gender = Math.random() < 0.7 ? 'boy' : 'girl';
+        } else {
+          gender = Math.random() < 0.5 ? 'girl' : 'boy';
+        }
+        
+        // Sometimes pick from special names
+        if (Math.random() < 0.2) {
+          name = FUTURE_KIDS_DATA.specialNames[Math.floor(Math.random() * FUTURE_KIDS_DATA.specialNames.length)];
+          gender = 'special';
+        } else {
+          const nameArray = gender === 'girl' ? FUTURE_KIDS_DATA.girlNames : FUTURE_KIDS_DATA.boyNames;
+          name = nameArray[Math.floor(Math.random() * nameArray.length)];
+        }
+        
+        // Add her middle name as potential middle name
+        const useMiddleName = Math.random() < 0.4;
+        const fullName = useMiddleName ? `${name} ${FUTURE_KIDS_DATA.herInspirations.middleName}` : name;
+        
+        // Birth month/season
+        const seasons = ['spring', 'summer', 'fall', 'winter'];
+        const season = seasons[Math.floor(Math.random() * seasons.length)];
+        
+        nameCard.innerHTML = `
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-3xl">${gender === 'girl' ? '👧' : gender === 'boy' ? '👦' : '👼'}</span>
+            <span class="text-xs px-2 py-1 bg-pink-100 rounded-full text-pink-600">${season} baby</span>
+          </div>
+          <p class="text-xl font-bold" style="color: #2d2d2d;">${fullName}</p>
+          <p class="text-xs text-gray-400 mt-2">${useMiddleName ? `named after her middle name ✨` : 'picked just for you ❤️'}</p>
+        `;
+        
+        container.appendChild(nameCard);
+      }
+      
+      // Add inspiration stat
+      const inspirationNote = document.createElement('div');
+      inspirationNote.className = 'col-span-full text-center text-xs text-gray-400 mt-2';
+      inspirationNote.innerHTML = `
+        🌸 inspired by her: ${FUTURE_KIDS_DATA.herInspirations.favoriteFlower}, 
+        ${FUTURE_KIDS_DATA.herInspirations.favoriteCity}, 
+        ${FUTURE_KIDS_DATA.herInspirations.favoriteCharacter}
+      `;
+      container.appendChild(inspirationNote);
+    }
+
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // ... existing init code ...
+      initFutureKidsSection();
+    });
+
+  </script>
+
+  <style>
+    @media (max-width: 768px) {
+      .grid { gap: 1rem; }
+      h1 { font-size: 2.5rem; }
+    }
+    .hidden-memory { display: none; }
+    .hidden { display: none; }
+    .locked { overflow-y: hidden; }
+    .unlocked { overflow-y: auto; }
+
+    /* Baby section animations */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+#future-kids-section {
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+#kids-unlocked-content {
+  transition: opacity 0.5s ease;
+}
+
+#future-kids-letter {
+  transition: opacity 0.2s ease;
+}
+
+/* Baby bottle bounce */
+#baby-rattle {
+  animation: bounce 2s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Cute baby gradient */
+.baby-gradient {
+  background: linear-gradient(145deg, #fff0f3, #ffe9f0);
+}
+  </style>
+</body>
+</html>
