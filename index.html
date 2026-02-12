@@ -271,17 +271,52 @@
   <!-- Main Content (Hidden until unlocked) -->
   <div id="main-content" class="relative max-w-6xl mx-auto px-4 py-12 opacity-0 transition-opacity duration-1000">
     
-    <!-- Hero Section -->
-    <div class="text-center mb-20 floating">
-      <span class="text-7xl mb-4 block heart animate-pulse">🫀</span>
-      <h1 class="text-5xl md:text-7xl font-bold mb-4" style="color: #2d2d2d;">
-        for my <span id="her-name" style="color: #ff8da1;">Mama (Mrs Joey Senna)</span>
-      </h1>
-      <div class="flex items-center justify-center gap-2 text-xl md:text-2xl text-gray-600">
-        <span>you are my</span>
-        <span id="typing-text" class="font-semibold typing" style="color: #ff8da1;"></span>
-      </div>
-    </div>
+   <!-- HERO SECTION — HER FACE FIRST -->
+<div class="relative min-h-screen flex items-center justify-center mb-20">
+  
+  <!-- Background gradient overlay -->
+  <div class="absolute inset-0 bg-gradient-to-b from-pink-100/30 via-transparent to-pink-100/30 pointer-events-none"></div>
+  
+  <div class="relative z-10 text-center max-w-4xl mx-auto px-4">
+    
+    <!-- HER PHOTO — POLAROID STYLE (FIXED) -->
+<div class="relative inline-block mb-8 group">
+  <!-- Polaroid frame -->
+  <div class="absolute -inset-3 bg-white rounded-2xl shadow-2xl rotate-[-2deg] group-hover:rotate-0 transition-transform duration-500"></div>
+  <div class="absolute -inset-3 bg-white rounded-2xl shadow-2xl rotate-[3deg] group-hover:rotate-0 transition-transform duration-500 opacity-50"></div>
+  
+  <!-- Actual photo container - FIXED ASPECT RATIO -->
+  <div class="relative w-100 h-100 md:w-80 md:h-80 rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+    <img 
+      src="assets/IMG-20250710-WA0039 (1).jpg" 
+      alt="her smile" 
+      class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700"
+      style="object-position: 50% 30%;" /* ← ADJUST THIS IF HER FACE IS CUT OFF */
+      onerror="this.src='https://placehold.co/400x400/ffb7c5/ffffff?text=her+smile'"
+    >
+    <!-- Soft gradient overlay -->
+    <div class="absolute inset-0 bg-gradient-to-t from-pink-500/20 via-transparent to-transparent"></div>
+  </div>
+  
+  <!-- Caption on frame -->
+  <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm px-6 py-2 rounded-full text-sm font-medium text-gray-700 shadow-lg whitespace-nowrap">
+    ✦ the woman who stole my heart ✦
+  </div>
+</div>
+    
+    <!-- Your existing hero text -->
+    <h1 class="text-5xl md:text-7xl font-bold mb-4 mt-12" style="color: #2d2d2d;">
+      for my <span style="color: #ff8da1;">Mama</span>
+    </h1>
+
+   <!-- TYPING ANIMATION - GUARANTEED TO WORK -->
+<div class="flex items-center justify-center gap-2 text-xl md:text-2xl text-gray-600 min-h-[60px]">
+  <span>you are my</span>
+  <span id="typing-text" class="font-semibold text-pink-500 relative">
+    <span id="words" class="inline-block min-w-[120px] text-left"></span>
+    <span id="cursor" class="inline-block w-[3px] h-[1.2em] bg-pink-400 ml-1 align-middle animate-blink"></span>
+  </span>
+</div>
 
     <!-- 💘 WILL YOU BE MY VALENTINE? TOGGLE -->
     <section class="mb-24">
@@ -313,7 +348,7 @@
           <span class="text-4xl mb-3 block">👋</span>
           <h3 class="text-xl font-bold mb-2">the meet</h3>
           <p class="text-gray-600">[Kabondo Kasipul] — instant butterflies</p>
-          <p class="text-xs text-gray-400 mt-2">[24/05/2025]</p>
+          <p class="text-xs text-gray-400 mt-2">[2020]</p>
         </div>
         <div class="card p-6 rounded-2xl">
           <span class="text-4xl mb-3 block">✨</span>
@@ -370,22 +405,148 @@
       </div>
     </section>
 
-    <!-- Love Letter -->
-    <section class="mb-24">
-      <div class="card max-w-2xl mx-auto p-8 md:p-12 rounded-3xl">
-        <span class="text-3xl block text-center mb-4">💌</span>
-        <h2 class="text-2xl md:text-3xl font-bold text-center mb-6" style="color: #2d2d2d;">
-          a little letter
-        </h2>
-        <div class="prose prose-lg text-gray-600 space-y-4" style="font-family: 'Playfair Display', serif;">
-          <p>my love,</p>
-          <p>i built this little corner of the internet just for you — because you deserve a love that's custom-coded, not copy-pasted.</p>
-          <p>every time i'm with you, it's like my heart learns a new color. thank you for being you. thank you for choosing me.</p>
-          <p>you're my favorite notification, my home screen, my forever bookmark.</p>
-          <p class="text-right mt-8" style="color: #ff8da1;">yours, Muffin</p>
+    <!-- 💌 THE POETIC LOVE LETTER — SHE'S GONNA LOSE IT -->
+<section class="mb-24 relative">
+  <!-- Vintage paper texture overlay -->
+  <div class="absolute inset-0 opacity-5 pointer-events-none" 
+       style="background-image: repeating-linear-gradient(45deg, #8b5a2b 0px, #8b5a2b 2px, transparent 2px, transparent 8px);">
+  </div>
+  
+  <div class="relative max-w-3xl mx-auto">
+    <!-- Wax seal decorative element -->
+    <div class="absolute -top-6 -left-6 text-6xl transform -rotate-12 opacity-80">
+      💌
+    </div>
+    <div class="absolute -bottom-6 -right-6 text-6xl transform rotate-12 opacity-80">
+      💝
+    </div>
+    
+    <!-- Main letter card -->
+    <div class="card bg-white/95 backdrop-blur-sm p-8 md:p-14 rounded-3xl shadow-2xl border border-pink-200/50 relative overflow-hidden">
+      
+      <!-- Subtle heart watermark -->
+      <div class="absolute -bottom-10 -right-10 text-9xl opacity-5 rotate-12">
+        ❤️
+      </div>
+      
+      <!-- Handwritten font for that personal touch -->
+      <div style="font-family: 'Playfair Display', serif;" class="relative z-10">
+        
+        <!-- Date line — classy -->
+        <p class="text-right text-sm text-gray-400 mb-8 italic tracking-wide">
+          Valentine's Day, 2026
+        </p>
+        
+        <!-- THE LETTER — ENHANCED POETIC VERSION -->
+        <div class="space-y-6 text-gray-700 leading-relaxed">
+          
+          <!-- Opening — soft, intimate -->
+          <p class="text-xl" style="color: #4a4a4a;">
+            My darling,
+          </p>
+          
+          <!-- Stanza 1 — The Meeting -->
+          <p class="pl-4 border-l-4 border-pink-300 italic text-lg" style="color: #5a5a5a;">
+            Before you, my world was in grayscale —<br>
+            a collection of days strung together like old photographs.<br>
+            Then you arrived, not like a storm,<br>
+            but like dawn: patient, golden, inevitable.
+          </p>
+          
+          <!-- Stanza 2 — Who she is -->
+          <p>
+            You are the kind of quiet that fills rooms.<br>
+            <span class="text-pink-500 font-semibold">Your laugh</span> spills like light through windowpanes,<br>
+            and your heart — god, your heart —<br>
+            is not content to simply beat;<br>
+            it <span class="italic">radiates</span>. It finds stray souls and calls them home.
+          </p>
+          
+          <!-- Stanza 3 — Small things -->
+          <p class="text-sm md:text-base">
+            I love you in the small infinities:<br>
+            <span class="ml-2">• the way you tilt your head when you're solving a problem</span><br>
+            <span class="ml-2">• your post-nap voice, still dreaming at the edges</span><br>
+            <span class="ml-2">• how you remember the names of baristas, cashiers, strangers</span><br>
+            <span class="ml-2">• the sound you make when something is *really* good</span><br>
+            <span class="ml-2">• your hands finding mine in the dark</span>
+          </p>
+          
+          <!-- Stanza 4 — Metaphor cascade -->
+          <p class="relative">
+            <span class="text-3xl float-left mr-2 text-pink-400" style="font-size: 4rem; line-height: 0.8;">"</span>
+            You are not my other half —<br>
+            that implies we were broken once, incomplete.<br>
+            You are my <span class="font-bold text-pink-500">more</span>. My expansion.<br>
+            The reason my chest has learned a new rhythm.<br>
+            Before you, I loved in lowercase.<br>
+            Now every feeling arrives with capital letters.
+          </p>
+          
+          <!-- Stanza 5 — The question -->
+          <p class="text-center my-8 py-4 px-6 bg-pink-50/80 rounded-xl italic text-lg">
+            "What did I do to deserve you?"<br>
+            <span class="text-gray-500 text-sm">— you ask me this, still not understanding</span><br>
+            <span class="font-semibold text-pink-500">that the question isn't what I did,</span><br>
+            <span class="font-semibold text-pink-500">but what the universe was thinking,</span><br>
+            <span class="font-semibold text-pink-500">waiting so long to give you to me.</span>
+          </p>
+          
+          <!-- Stanza 6 — Promise -->
+          <p>
+            I promise you:<br>
+            <span class="ml-2">• not a perfect love, but a present one</span><br>
+            <span class="ml-2">• not a fairy tale, but a story we write together</span><br>
+            <span class="ml-2">• not possession, but witness — I will spend my life</span><br>
+            <span class="ml-6">watching you become more of who you already are</span>
+          </p>
+          
+          <!-- Stanza 7 — Closing imagery -->
+          <p class="text-center text-pink-400 text-2xl my-6">
+            ∼  ☕  ∼  🌙  ∼  ✨  ∼
+          </p>
+          
+          <p>
+            So here is my hand, if you'll still have it.<br>
+            Here is my life, unscripted and uncertain.<br>
+            Here is my heart — already yours,<br>
+            just waiting for you to open it.
+          </p>
+          
+          <!-- Signature — elegant -->
+          <div class="mt-12 text-right">
+            <p class="text-2xl mb-1" style="font-family: 'Playfair Display', serif; color: #ff8da1;">
+              Yours, always,
+            </p>
+            <p class="text-4xl mt-2" style="font-family: 'Playfair Display', serif; font-weight: 700; color: #ff6b8b;">
+              Muffin
+            </p>
+            <p class="text-xs text-gray-400 mt-3 tracking-widest uppercase">
+              ✦ for as long as you'll let me ✦
+            </p>
+          </div>
         </div>
       </div>
-    </section>
+      
+      <!-- Interactive seal — she can "break" it -->
+      <div class="absolute top-4 right-4 group cursor-pointer" id="wax-seal">
+        <div class="relative">
+          <div class="w-16 h-16 bg-gradient-to-br from-red-400 to-red-600 rounded-full shadow-xl flex items-center justify-center text-white text-2xl transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
+            💮
+          </div>
+          <div class="absolute -bottom-1 -right-1 text-xs bg-white px-2 py-1 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+            break the seal
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Footnote - romantic -->
+    <p class="text-center text-xs text-gray-400 mt-6 tracking-wide">
+      ✎ handwritten in pixels, but meant with everything i have
+    </p>
+  </div>
+</section>
 
     <!-- 🎵 SPOTIFY PLAYLIST EMBED -->
     <section class="mb-24">
@@ -574,27 +735,27 @@
     // ============================================
     const galleryPhotos = [
       {
-        url: "D:\User\Documents\Ayrton\Project 2025\Surprise\IMG_20250710_145734.jpg",
+        url: "assets/IMG_20250710_145734.jpg",
         caption: "first date 🥰",
         date: "July 2025"
       },
       {
         url: "https://placehold.co/400x400/ff8da1/ffffff?text=her+birthday",
         caption: "her birthday 🎂",
-        date: "May 2025"
+        date: "17 May 2002"
       },
       {
         url: "https://placehold.co/400x400/ffb7c5/ffffff?text=beach+day",
         caption: "beach day 🌊",
-        date: "Jul 2023"
+        date: "Pending"
       },
       {
-        url: "D:\User\Documents\Ayrton\Project 2025\Surprise\IMG_20250824_180300.jpg",
+        url: "assets/IMG_20250824_180300.jpg",
         caption: "3 Month's Anniversary ☕",
         date: "August 2025"
       },
       {
-        url: "D:\User\Documents\Ayrton\Project 2025\Surprise\IMG_20250824_183141.jpg",
+        url: "assets/IMG_20250824_183141.jpg",
         caption: "just us 🤍",
         date: "August 2025"
       },
@@ -606,7 +767,7 @@
     // ============================================
     const polaroids = [
       { emoji: "🥰", title: "first date", date: "July 2025" },
-      { emoji: "🎂", title: "her birthday", date: "May" },
+      { emoji: "🎂", title: "her birthday", date: " 17 May 2002" },
       { emoji: "🌊", title: "beach day", date: "Pending" },
       { emoji: "☕", title: "coffee mornings", date: "every day" },
       { emoji: "🎬", title: "movie nights", date: "always" },
@@ -719,56 +880,69 @@
     }
 
     // ============================================
-    // ⌨️ TYPING ANIMATION
-    // ============================================
-    function startTyping() {
-      const phrases = ["sunshine", "safe space", "best friend", "favorite person", "home", "everything"];
-      let i = 0;
-      let j = 0;
-      let currentPhrase = [];
-      let isDeleting = false;
-      let isEnd = false;
-
-      function loop() {
-        isEnd = false;
-        const typingElement = document.getElementById('typing-text');
-        if (typingElement) {
-          typingElement.innerHTML = currentPhrase.join('');
-          
-          if (i < phrases.length) {
-            if (!isDeleting && j <= phrases[i].length) {
-              currentPhrase.push(phrases[i][j]);
-              j++;
-            }
-
-            if (isDeleting && j <= phrases[i].length) {
-              currentPhrase.pop();
-              j--;
-            }
-
-            if (j == phrases[i].length) {
-              isEnd = true;
-              isDeleting = true;
-            }
-
-            if (isDeleting && j === 0) {
-              currentPhrase = [];
-              isDeleting = false;
-              i++;
-              if (i == phrases.length) {
-                i = 0;
-              }
-            }
-          }
-          
-          const spedUp = Math.random() * (80 - 50) + 50;
-          const normalSpeed = Math.random() * (300 - 200) + 200;
-          const time = isEnd ? 2000 : isDeleting ? spedUp : normalSpeed;
-          setTimeout(loop, time);
-        }
+// ⌨️ TYPING ANIMATION - 100% WORKING
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+  // Words to cycle through - CUSTOMIZE THESE!
+  const words = [
+    "sunshine ☀️",
+    "safe space 🏠", 
+    "best friend 🫂",
+    "favorite person 💕",
+    "home 🏡",
+    "everything ✨",
+    "reason 🌙"
+  ];
+  
+  let i = 0;
+  let j = 0;
+  let currentWord = "";
+  let isDeleting = false;
+  let isEnd = false;
+  
+  const wordsElement = document.getElementById('words');
+  const cursorElement = document.getElementById('cursor');
+  
+  function type() {
+    // Make sure element exists
+    if (!wordsElement) return;
+    
+    isEnd = false;
+    currentWord = words[i];
+    
+    if (isDeleting) {
+      // Deleting text
+      wordsElement.textContent = currentWord.substring(0, j - 1);
+      j--;
+      
+      // Finished deleting
+      if (j === 0) {
+        isDeleting = false;
+        i++;
+        if (i === words.length) i = 0;
       }
-      loop();
+    } else {
+      // Typing text
+      wordsElement.textContent = currentWord.substring(0, j + 1);
+      j++;
+      
+      // Finished typing
+      if (j === currentWord.length) {
+        isEnd = true;
+        isDeleting = true;
+      }
     }
+    
+    // Speed control
+    const typeSpeed = isDeleting ? 50 : 100;
+    const pauseTime = isEnd ? 2000 : typeSpeed;
+    
+    setTimeout(type, pauseTime);
+  }
+  
+  // Start the typing animation
+  setTimeout(type, 1000); // 1 second delay before starting
+});
 
     // ============================================
     // ❤️ FLOATING HEARTS
@@ -882,7 +1056,7 @@
       
       // Girl names she likes / would be cute
       girlNames: [
-        "Luna",
+        "Zyaire",
         "Iris", 
         "Nova",
         "Hazel",
@@ -901,15 +1075,15 @@
       
       // Boy names she likes / would be cute
       boyNames: [
-        "Leo",
-        "Jasper",
+        "Zyren",
+        "Jeff",
         "Finn",
         "Theo",
         "Milo",
-        "Ezra",
+        "Max",
         "Silas",
         "Arlo",
-        "Felix",
+        "Lewis",
         "August",
         "River",
         "Atlas",
@@ -1153,6 +1327,60 @@
       initFutureKidsSection();
     });
 
+    // ============================================
+// 💌 WAX SEAL INTERACTION — she "breaks" it open
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+  const seal = document.getElementById('wax-seal');
+  if (seal) {
+    seal.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Create shattering effect
+      this.style.transform = 'scale(0.9)';
+      setTimeout(() => this.style.transform = '', 200);
+      
+      // Reveal secret message
+      const secretMsg = document.createElement('div');
+      secretMsg.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-pink-100 to-white p-10 rounded-3xl shadow-2xl z-50 text-center border-4 border-pink-300 animate-bounce-slow';
+      secretMsg.style.animation = 'fadeInScale 0.3s ease, float 3s ease infinite';
+      secretMsg.innerHTML = `
+        <span class="text-7xl block mb-4">💌</span>
+        <h3 class="text-3xl font-bold mb-3" style="color: #ff8da1;">you broke the seal</h3>
+        <p class="text-gray-600 text-lg mb-2">so here's the unfiltered truth:</p>
+        <p class="text-gray-800 italic text-xl my-4" style="font-family: 'Playfair Display', serif;">
+          "i knew i loved you<br>the night you fell asleep on my shoulder<br>and i didn't move for two hours<br>because some moments are worth going numb for."
+        </p>
+        <button onclick="this.parentElement.remove(); createConfetti(30)" 
+                class="mt-4 px-6 py-2 bg-pink-400 text-white rounded-full hover:bg-pink-500 transition-colors">
+          seal it back 💕
+        </button>
+      `;
+      document.body.appendChild(secretMsg);
+      createConfetti(15);
+      
+      // Auto-remove after 8 seconds
+      setTimeout(() => {
+        if (secretMsg.parentNode) secretMsg.remove();
+      }, 8000);
+    });
+  }
+});
+
+// Add new animation
+const styleSheet = document.createElement('style');
+styleSheet.textContent = `
+  @keyframes fadeInScale {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  }
+  
+  .animate-bounce-slow {
+    animation: bounce 3s ease infinite;
+  }
+`;
+document.head.appendChild(styleSheet);
+
   </script>
 
   <style>
@@ -1197,6 +1425,82 @@
 /* Cute baby gradient */
 .baby-gradient {
   background: linear-gradient(145deg, #fff0f3, #ffe9f0);
+}
+
+/* Add to your <style> section */
+.photo-locket {
+  position: relative;
+  cursor: pointer;
+}
+
+.photo-locket::after {
+  content: "❤️";
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all 0.3s ease;
+}
+
+.photo-locket:hover::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.photo-glow {
+  transition: box-shadow 0.3s ease;
+}
+
+.photo-glow:hover {
+  box-shadow: 0 0 30px rgba(255, 141, 161, 0.5);
+}
+
+/* ===== IMAGE FIXES - HER FACE DESERVES TO FIT ===== */
+
+/* Option 1 - Polaroid Hero */
+.hero-image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;        /* ✨ THIS IS THE MAGIC - crops to fill */
+  object-position: center;  /* centers her face */
+}
+
+/* For portrait photos (tall) */
+.hero-image.portrait {
+  object-fit: cover;
+  object-position: center 20%; /* moves focal point up a bit */
+}
+
+/* For landscape photos (wide) */
+.hero-image.landscape {
+  object-fit: cover;
+  object-position: center 30%;
+}
+
+/* Blinking cursor animation */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Make sure typing text has consistent width */
+#words {
+  transition: all 0.1s ease;
+  min-width: 140px;
+  text-align: left;
 }
   </style>
 </body>
