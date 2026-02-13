@@ -11,6 +11,8 @@
   <!-- Leaflet.js for Interactive Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Canvas Confetti for Heart Explosions -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Quicksand:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -25,30 +27,141 @@
     body.locked { overflow-y: hidden; }
     h1, h2, h3 { font-family: 'Playfair Display', serif; }
     
-    /* ===== COLOR PALETTE ===== */
-    :root {
-      --primary: #b76e79;
-      --primary-light: #ffb7c5;
-      --primary-dark: #a45d5d;
-      --accent: #e8d1c5;
-      --bg-soft: #fff9f7;
+    /* ===== HEARTBEAT ANIMATION ===== */
+    @keyframes heartbeat {
+      0% { transform: scale(1); }
+      14% { transform: scale(1.15); }
+      28% { transform: scale(1); }
+      42% { transform: scale(1.15); }
+      70% { transform: scale(1); }
+      100% { transform: scale(1); }
     }
     
-    .heart {
-      color: var(--primary-light);
-      transition: all 0.3s ease;
+    .heartbeat {
+      animation: heartbeat 2s ease-in-out infinite;
+      display: inline-block;
     }
-    .heart:hover {
-      color: var(--primary-dark);
-      transform: scale(1.1);
-    }
-    .floating { animation: float 6s ease-in-out infinite; }
+    
     @keyframes float {
       0% { transform: translateY(0px); }
       50% { transform: translateY(-10px); }
       100% { transform: translateY(0px); }
     }
+    .floating { animation: float 6s ease-in-out infinite; }
     
+    /* ===== FLOATING HEART PARTICLES ===== */
+    .floating-heart {
+      position: fixed;
+      bottom: -50px;
+      pointer-events: none;
+      z-index: 9999;
+      animation: floatUp 8s linear forwards;
+      color: rgba(255, 141, 161, 0.6);
+      font-size: 20px;
+    }
+    
+    @keyframes floatUp {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+      100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+    }
+    
+    /* ===== POLAROID FLIP CARDS ===== */
+    .flip-card {
+      background: transparent;
+      aspect-ratio: 1;
+      perspective: 1000px;
+      cursor: pointer;
+    }
+    
+    .flip-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    
+    .flip-card.flipped .flip-inner {
+      transform: rotateY(180deg);
+    }
+    
+    .flip-front, .flip-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 1rem;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    
+    .flip-front {
+      background: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      border: 1px solid rgba(255, 192, 203, 0.3);
+    }
+    
+    .flip-back {
+      background: white;
+      transform: rotateY(180deg);
+    }
+    
+    .flip-back img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    /* ===== DANCE OVERLAY ===== */
+    .dance-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 10001;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.5s ease;
+    }
+    
+    .dance-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .dance-hearts {
+      display: flex;
+      gap: 40px;
+      margin-bottom: 30px;
+    }
+    
+    .dance-heart-left, .dance-heart-right {
+      font-size: 80px;
+      animation: sway 3s ease-in-out infinite;
+    }
+    
+    .dance-heart-right {
+      animation-delay: 0.5s;
+    }
+    
+    @keyframes sway {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+    
+    /* ===== REST OF YOUR EXISTING STYLES ===== */
     .card {
       background: rgba(255, 255, 255, 0.7);
       backdrop-filter: blur(10px);
@@ -78,19 +191,7 @@
     
     @keyframes blink {
       from, to { border-color: transparent; }
-      50% { border-color: var(--primary-dark); }
-    }
-    
-    .polaroid {
-      background: white;
-      padding: 1rem 1rem 2rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-      transform: rotate(var(--rotate, 0deg));
-      transition: all 0.3s ease;
-    }
-    .polaroid:hover {
-      transform: rotate(0deg) scale(1.05);
-      box-shadow: 0 20px 40px rgba(255, 183, 197, 0.3);
+      50% { border-color: #a45d5d; }
     }
     
     /* ===== PASSWORD GATE ===== */
@@ -129,75 +230,6 @@
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 1.5rem;
     }
-    .gallery-item {
-      position: relative;
-      aspect-ratio: 1;
-      border-radius: 1rem;
-      overflow: hidden;
-      cursor: pointer;
-    }
-    .gallery-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s ease;
-    }
-    .gallery-item:hover img { transform: scale(1.1); }
-    .gallery-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(to top, rgba(255, 141, 161, 0.9), transparent);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      display: flex;
-      align-items: flex-end;
-      padding: 1rem;
-      color: white;
-      font-weight: 500;
-    }
-    .gallery-item:hover .gallery-overlay { opacity: 1; }
-    
-    /* ===== LIGHTBOX ===== */
-    .lightbox {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-    }
-    .lightbox.active {
-      opacity: 1;
-      visibility: visible;
-    }
-    .lightbox-content {
-      max-width: 90%;
-      max-height: 90vh;
-      position: relative;
-    }
-    .lightbox-content img {
-      max-width: 100%;
-      max-height: 85vh;
-      border-radius: 1rem;
-    }
-    .lightbox-close {
-      position: absolute;
-      top: -40px;
-      right: 0;
-      color: white;
-      font-size: 2rem;
-      cursor: pointer;
-    }
     
     /* ===== YES/NO TOGGLE ===== */
     .valentine-toggle {
@@ -218,24 +250,6 @@
     }
     .shake { animation: shake 0.5s ease; }
     
-    /* ===== INTERACTIVE MAP ===== */
-    #love-map {
-      height: 300px;
-      width: 100%;
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(255, 141, 161, 0.2);
-      border: 4px solid white;
-      z-index: 1;
-    }
-    .leaflet-popup-content {
-      font-family: 'Quicksand', sans-serif;
-      color: #ff8da1;
-      font-weight: 600;
-    }
-    .leaflet-popup-tip {
-      background: white;
-    }
-    
     /* ===== COUNTDOWN ===== */
     .countdown-number {
       background: linear-gradient(135deg, #ff8da1, #ffb7c5);
@@ -245,18 +259,18 @@
       padding: 8px 12px;
       min-width: 70px;
       text-align: center;
-      box-shadow: 0 4px 10px rgba(255, 141, 161, 0.3);
     }
     
-    /* ===== DISTANCE VISUAL ===== */
-    .distance-line {
-      background: linear-gradient(90deg, #ff8da1, #ffb7c5, #ff8da1);
-      background-size: 200% 100%;
-      animation: shimmer 3s infinite;
+    /* ===== MUSIC CONTROLS ===== */
+    #music-control {
+      transition: all 0.3s ease;
+      z-index: 10002;
     }
-    @keyframes shimmer {
-      0% { background-position: 100% 0; }
-      100% { background-position: -100% 0; }
+    
+    #music-toggle {
+      background: white;
+      border: 2px solid #ffb7c5;
+      box-shadow: 0 4px 15px rgba(255, 141, 161, 0.3);
     }
     
     /* ===== MOBILE FIXES ===== */
@@ -272,14 +286,7 @@
         z-index: 50;
       }
       .no-btn, .yes-btn { min-width: 120px; min-height: 56px; }
-      .whitespace-nowrap {
-        white-space: normal !important;
-        width: 90% !important;
-        font-size: 12px !important;
-        padding: 8px 16px !important;
-      }
-      #love-map { height: 250px; }
-      .countdown-number { min-width: 60px; padding: 6px 8px; }
+      #music-control { bottom: 100px; right: 16px; }
     }
   </style>
 </head>
@@ -288,7 +295,7 @@
   <!-- 🚪 PASSWORD GATE -->
   <div id="gate" class="gate-container">
     <div class="gate-box floating">
-      <span class="text-7xl block mb-4">🔐</span>
+      <span class="text-7xl block mb-4 heartbeat" style="color: #ff8da1;">🫀</span>
       <h1 class="text-3xl md:text-4xl font-bold mb-4" style="color: #ff8da1;">
         for your eyes only
       </h1>
@@ -313,11 +320,24 @@
     </div>
   </div>
 
-  <!-- Floating Hearts Background -->
-  <div class="fixed inset-0 pointer-events-none" id="heart-bg"></div>
+  <!-- Floating Particles Container -->
+  <div id="particles-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></div>
+
+  <!-- Dance Overlay -->
+  <div id="dance-overlay" class="dance-overlay">
+    <div class="dance-hearts">
+      <div class="dance-heart-left">🫀</div>
+      <div class="dance-heart-right">🫀</div>
+    </div>
+    <p class="text-white text-2xl md:text-3xl font-bold mb-4" style="font-family: 'Playfair Display', serif;">our first dance</p>
+    <p class="text-pink-300 text-lg">you & me, always</p>
+    <button onclick="closeDanceOverlay()" class="mt-8 px-6 py-3 bg-white/20 backdrop-blur text-white rounded-full hover:bg-white/30 transition">
+      back to us 💕
+    </button>
+  </div>
 
   <!-- Main Content -->
-  <div id="main-content" class="relative max-w-6xl mx-auto px-4 py-12 opacity-0 transition-opacity duration-1000">
+  <div id="main-content" class="relative max-w-6xl mx-auto px-4 py-12 opacity-0 transition-opacity duration-1000" style="z-index: 10;">
     
     <!-- ===== HERO SECTION ===== -->
     <div class="relative min-h-screen flex items-center justify-center mb-20">
@@ -347,7 +367,7 @@
         </div>
         
         <h1 class="text-5xl md:text-7xl font-bold mb-4 mt-12" style="color: #2d2d2d;">
-          for my <span style="color: #ff8da1;">Mama</span>
+          for my <span style="color: #ff8da1;" class="heartbeat">Mama</span>
         </h1>
 
         <!-- TYPING ANIMATION -->
@@ -379,14 +399,14 @@
       </div>
     </section>
 
-    <!-- ===== INTERACTIVE MAP + LIVE COUNTDOWN COMBO ===== -->
+    <!-- ===== INTERACTIVE MAP + COUNTDOWN ===== -->
     <section class="mb-24">
       <h2 class="text-3xl md:text-4xl font-bold text-center mb-8" style="color: #2d2d2d;">
-        distance means nothing <span class="heart">🌍</span>
+        distance means nothing <span class="heart heartbeat">🫀</span>
       </h2>
       
       <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-        <!-- LEFT: INTERACTIVE MAP - KADONGO → MOMBASA -->
+        <!-- LEFT: INTERACTIVE MAP -->
         <div class="bg-white/80 backdrop-blur rounded-3xl p-4 shadow-xl border border-pink-200">
           <div id="love-map" style="height: 300px; width: 100%;"></div>
           <p class="text-center text-xs text-gray-400 mt-3">
@@ -394,14 +414,13 @@
           </p>
         </div>
         
-        <!-- RIGHT: LIVE COUNTDOWN WITH SECONDS -->
+        <!-- RIGHT: LIVE COUNTDOWN -->
         <div class="bg-gradient-to-br from-pink-50 to-white rounded-3xl p-6 shadow-xl border border-pink-200 flex flex-col justify-center">
           <div class="text-center">
-            <span class="text-4xl mb-3 block">⏳</span>
+            <span class="text-4xl mb-3 block heartbeat">⏳</span>
             <h3 class="text-xl font-bold mb-2" style="color: #ff8da1;">counting down to</h3>
             <p class="text-lg font-semibold text-gray-700 mb-6">the next time i hold you</p>
             
-            <!-- LIVE COUNTDOWN NUMBERS - WITH SECONDS! -->
             <div class="flex justify-center gap-2 md:gap-3 mb-4 flex-wrap">
               <div class="countdown-number">
                 <div id="days" class="text-2xl md:text-3xl font-bold">--</div>
@@ -424,21 +443,13 @@
             <p id="countdown-message" class="text-sm italic text-gray-500 mt-4">
               every second brings me closer to you
             </p>
-            
-            <!-- Target Date -->
-            <div class="mt-4 pt-4 border-t border-pink-200">
-              <p class="text-xs text-gray-400">
-                🎯 March 15, 2026 · 10:00 AM
-              </p>
-            </div>
           </div>
         </div>
       </div>
       
-      <!-- Romantic Promise -->
       <div class="text-center mt-8">
         <p class="text-sm italic text-gray-600 bg-white/50 inline-block px-6 py-3 rounded-full shadow-sm">
-          "776 km apart, but you're always right here" <span class="text-pink-500">🫀</span>
+          "776 km apart, but you're always right here" <span class="text-pink-500 heartbeat">🫀</span>
         </p>
       </div>
     </section>
@@ -450,7 +461,7 @@
       </h2>
       <div class="grid md:grid-cols-3 gap-6">
         <div class="card p-6 rounded-2xl">
-          <span class="text-4xl mb-3 block">👋</span>
+          <span class="text-4xl mb-3 block heartbeat">👋</span>
           <h3 class="text-xl font-bold mb-2">the meet</h3>
           <p class="text-gray-600">
             It was just a normal day.
@@ -471,13 +482,13 @@ But I did.
           <p class="text-xs text-gray-400 mt-2">[09/07/2025]</p>
         </div>
         <div class="card p-6 rounded-2xl">
-          <span class="text-4xl mb-3 block">✨</span>
+          <span class="text-4xl mb-3 block heartbeat">✨</span>
           <h3 class="text-xl font-bold mb-2">the moment</h3>
           <p class="text-gray-600">I knew I loved you the night you fell asleep on my shoulder and I didn't move for two hours. Then was awaken by your beautiful kisses at 2 am. Not because I was trapped. Because some moments are worth going numb for and dying for.</p>
           <p class="text-xs text-gray-400 mt-2">[09/07/2025]</p>
         </div>
         <div class="card p-6 rounded-2xl">
-          <span class="text-4xl mb-3 block">🌟</span>
+          <span class="text-4xl mb-3 block heartbeat">🌟</span>
           <h3 class="text-xl font-bold mb-2">right now</h3>
           <p class="text-gray-600">still falling, every single day</p>
           <p class="text-xs text-gray-400 mt-2">[14/02/2026]</p>
@@ -488,10 +499,9 @@ But I did.
     <!-- ===== 12 REASONS ===== -->
     <section class="mb-24">
       <h2 class="text-3xl md:text-4xl font-bold text-center mb-4" style="color: #2d2d2d;">
-        12 reasons i <span class="heart">❤️</span> you
+        12 reasons i <span class="heart heartbeat">❤️</span> you
       </h2>
       
-      <!-- PROGRESS METER -->
       <div class="text-center mb-6">
         <p class="text-pink-400 text-sm uppercase tracking-wider">✨ hearts collected ✨</p>
         <div id="unlock-progress" class="flex justify-center gap-1 my-2"></div>
@@ -503,14 +513,14 @@ But I did.
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="reasons-grid"></div>
     </section>
 
-    <!-- 📸 PHOTO GALLERY -->
+    <!-- ===== INTERACTIVE POLAROID WALL (FLIP CARDS) ===== -->
     <section class="mb-24">
       <h2 class="text-3xl md:text-4xl font-bold text-center mb-4" style="color: #2d2d2d;">
-        our photo diary <span class="heart">📸</span>
+        our photo diary <span class="heart heartbeat">📸</span>
       </h2>
-      <p class="text-center text-gray-500 mb-10">every click is a core memory</p>
+      <p class="text-center text-gray-500 mb-10">tap each polaroid to flip → see the memory</p>
       
-      <div id="photo-gallery" class="gallery-grid"></div>
+      <div id="polaroid-flip-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
       
       <!-- Lightbox -->
       <div id="lightbox" class="lightbox">
@@ -521,25 +531,14 @@ But I did.
       </div>
     </section>
 
-    <!-- Polaroid Wall -->
-    <section class="mb-24">
-      <h2 class="text-3xl md:text-4xl font-bold text-center mb-12" style="color: #2d2d2d;">
-        memories on display <span class="heart">🎞️</span>
-      </h2>
-      <div class="grid md:grid-cols-3 gap-8" id="polaroid-wall"></div>
-    </section>
-
-    <!-- ===== COUNTDOWN TIMER (Fallback) ===== -->
-    <!-- This is now integrated in the map section above, but keeping for compatibility -->
-
-    <!-- 💌 THE LOVE LETTER - YOUR EXACT WORDS -->
+    <!-- 💌 THE LOVE LETTER -->
     <section class="mb-24 relative">
       <div class="absolute inset-0 opacity-5 pointer-events-none" 
            style="background-image: repeating-linear-gradient(45deg, #8b5a2b 0px, #8b5a2b 2px, transparent 2px, transparent 8px);"></div>
       
       <div class="relative max-w-3xl mx-auto">
-        <div class="absolute -top-6 -left-6 text-6xl transform -rotate-12 opacity-80">💌</div>
-        <div class="absolute -bottom-6 -right-6 text-6xl transform rotate-12 opacity-80">💝</div>
+        <div class="absolute -top-6 -left-6 text-6xl transform -rotate-12 opacity-80 heartbeat">💌</div>
+        <div class="absolute -bottom-6 -right-6 text-6xl transform rotate-12 opacity-80 heartbeat">💝</div>
         
         <div class="card bg-white/95 backdrop-blur-sm p-8 md:p-14 rounded-3xl shadow-2xl border border-pink-200/50 relative overflow-hidden">
           <div class="absolute -bottom-10 -right-10 text-9xl opacity-5 rotate-12">❤️</div>
@@ -549,7 +548,6 @@ But I did.
               Valentine's Day, 2026
             </p>
             
-            <!-- YOUR EXACT LETTER - PRESERVED -->
             <div class="space-y-6 text-gray-700 leading-relaxed">
               <p class="text-xl" style="color: #4a4a4a;">My darling,</p>
               
@@ -631,7 +629,7 @@ But I did.
           <!-- Wax seal -->
           <div class="absolute top-4 right-4 group cursor-pointer" id="wax-seal">
             <div class="relative">
-              <div class="w-16 h-16 bg-gradient-to-br from-red-400 to-red-600 rounded-full shadow-xl flex items-center justify-center text-white text-2xl transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
+              <div class="w-16 h-16 bg-gradient-to-br from-red-400 to-red-600 rounded-full shadow-xl flex items-center justify-center text-white text-2xl transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-300 heartbeat">
                 💮
               </div>
               <div class="absolute -bottom-1 -right-1 text-xs bg-white px-2 py-1 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
@@ -658,7 +656,6 @@ But I did.
         </div>
         <p class="text-center text-gray-400 text-sm mt-3">songs that remind me of you</p>
         
-        <!-- Voice note placeholder -->
         <div class="text-center mt-4">
           <button id="voice-note-btn" class="text-sm text-pink-400 hover:text-pink-600 transition-colors underline decoration-dotted">
             🎙️ hear what she said when I asked her out
@@ -677,17 +674,10 @@ But I did.
       </div>
       
       <div class="bg-gradient-to-br from-blue-50 to-pink-50 rounded-3xl p-8 md:p-12 border-2 border-dashed border-pink-300 relative overflow-hidden">
-        <div class="absolute inset-0 pointer-events-none opacity-10">
-          <span class="absolute top-10 left-10 text-7xl">👶</span>
-          <span class="absolute bottom-10 right-10 text-7xl">🍼</span>
-          <span class="absolute top-20 right-20 text-6xl">🧸</span>
-          <span class="absolute bottom-20 left-20 text-6xl">👣</span>
-        </div>
-        
         <div class="relative z-10">
           <div class="flex items-center justify-between mb-6">
             <div>
-              <span class="text-4xl block mb-2">👶💭</span>
+              <span class="text-4xl block mb-2 heartbeat">👶💭</span>
               <h2 class="text-3xl md:text-4xl font-bold" style="color: #2d2d2d;">
                 our future <span style="color: #ff8da1;">little ones</span>
               </h2>
@@ -730,7 +720,7 @@ But I did.
             
             <div class="bg-white/80 backdrop-blur rounded-2xl p-6 mt-6">
               <div class="flex items-center gap-3 mb-4">
-                <span class="text-2xl">💌</span>
+                <span class="text-2xl heartbeat">💌</span>
                 <h3 class="text-xl font-semibold" style="color: #2d2d2d;">a letter to our future babies</h3>
               </div>
               <p class="text-gray-600 italic mb-4" id="future-kids-letter">
@@ -741,12 +731,6 @@ But I did.
                   shuffle sentiment 🔄
                 </button>
               </div>
-            </div>
-            
-            <div class="mt-8 text-center">
-              <p class="text-xs text-gray-400">
-                ✨ names inspired by her: [her middle name], [her mom's name], [her favorite flower]
-              </p>
             </div>
           </div>
         </div>
@@ -763,15 +747,114 @@ But I did.
 
   </div>
 
+  <!-- ===== BACKGROUND MUSIC ===== -->
+  <audio id="bg-music" loop preload="auto" muted>
+    <source src="assets/Shania Twain - You’re Still The One (Official Music Video) [KNZH-emehxA].mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+
+  <!-- Floating Music Control Button -->
+  <div id="music-control" class="fixed bottom-28 right-6 z-50 flex flex-col items-end gap-2">
+    <button id="music-toggle" class="bg-white/90 backdrop-blur p-4 rounded-full shadow-xl border-2 border-pink-300 hover:scale-110 transition-all duration-300 heartbeat group">
+      <span id="music-icon" class="text-2xl">🔇</span>
+    </button>
+    <span id="music-label" class="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs text-pink-500 font-medium shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+      play our song
+    </span>
+  </div>
+
   <!-- AOS Script -->
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-  
-    <!-- AOS Script -->
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   
   <script>
     // ============================================
-    // 🔐 PASSWORD PROTECTION - FIXED
+    // 💓 FLOATING HEART PARTICLES
+    // ============================================
+    function createFloatingHeart() {
+      const heart = document.createElement('div');
+      heart.className = 'floating-heart';
+      heart.innerHTML = ['❤️', '💖', '💕', '💗', '💓', '🫀'][Math.floor(Math.random() * 6)];
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+      heart.style.animationDuration = (Math.random() * 6 + 5) + 's';
+      heart.style.opacity = Math.random() * 0.4 + 0.2;
+      document.getElementById('particles-container').appendChild(heart);
+      
+      setTimeout(() => heart.remove(), 10000);
+    }
+    
+    let heartsInterval;
+    function startFloatingHearts() {
+      if (heartsInterval) clearInterval(heartsInterval);
+      createFloatingHeart();
+      heartsInterval = setInterval(createFloatingHeart, 800);
+    }
+
+    // ============================================
+    // 🎊 HEART CONFETTI EXPLOSION
+    // ============================================
+    function heartConfetti(count = 50) {
+      if (typeof confetti !== 'function') return;
+      
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          confetti({
+            particleCount: 3,
+            spread: 70,
+            origin: { 
+              x: Math.random(), 
+              y: Math.random() * 0.6 
+            },
+            colors: ['#ff8da1', '#ffb7c5', '#ff6b8b', '#ff4d6d'],
+            shapes: ['heart', 'circle'],
+            scalar: 1.2
+          });
+        }, i * 20);
+      }
+    }
+
+    // ============================================
+    // 🎵 BACKGROUND MUSIC CONTROLLER
+    // ============================================
+    const audio = document.getElementById('bg-music');
+    const toggleBtn = document.getElementById('music-toggle');
+    const musicIcon = document.getElementById('music-icon');
+    const musicLabel = document.getElementById('music-label');
+
+    function attemptAutoPlay() {
+      audio.muted = false;
+      audio.play()
+        .then(() => {
+          musicIcon.textContent = '🎵';
+          musicLabel.textContent = 'our song';
+          heartConfetti(15);
+        })
+        .catch(e => {
+          console.log('Autoplay blocked — waiting for click');
+          musicIcon.textContent = '🔇';
+          musicLabel.textContent = 'tap to play';
+        });
+    }
+
+    toggleBtn.addEventListener('click', function() {
+      if (audio.paused) {
+        audio.muted = false;
+        audio.play()
+          .then(() => {
+            musicIcon.textContent = '🎵';
+            musicLabel.textContent = 'our song';
+            heartConfetti(10);
+          })
+          .catch(e => console.log('Play failed:', e));
+      } else {
+        audio.pause();
+        musicIcon.textContent = '🔇';
+        musicLabel.textContent = 'play our song';
+      }
+    });
+
+    // ============================================
+    // 🔐 PASSWORD PROTECTION
     // ============================================
     const CORRECT_PASSWORD = "24052025";
     const HER_NAME = "Mama";
@@ -782,41 +865,24 @@ But I did.
       const error = document.getElementById('password-error');
       
       if (input === CORRECT_PASSWORD) {
-        // Hide gate
         document.getElementById('gate').classList.add('hidden');
         document.body.classList.remove('locked');
         document.body.classList.add('unlocked');
+        document.getElementById('main-content').style.opacity = '1';
         
-        // Show main content
-        const mainContent = document.getElementById('main-content');
-        mainContent.style.opacity = '1';
+        AOS.init({ once: true, duration: 800, offset: 100 });
         
-        // Initialize AOS
-        if (typeof AOS !== 'undefined') {
-          AOS.init({ once: true, duration: 800, offset: 100 });
-        }
-        
-        // Start animations
+        startFloatingHearts();
+        heartConfetti(100);
         createConfetti(100);
-        
-        // FIXED: Check if startTyping exists before calling
-        if (typeof startTyping === 'function') {
-          startTyping();
-        } else {
-          // Fallback typing starter
-          startTypingFallback();
-        }
-        
-        // Try to load real image after unlock
+        startTyping();
         setTimeout(tryLoadRealImage, 500);
-        
-        // Initialize map after content is visible
         setTimeout(initLoveMap, 600);
+        initCountdown();
         
-        // Initialize countdown
-        if (typeof initCountdown === 'function') {
-          initCountdown();
-        }
+        // Try to play music after unlock
+        setTimeout(attemptAutoPlay, 1500);
+        
       } else {
         error.classList.remove('hidden');
         document.getElementById('password-input').classList.add('shake');
@@ -827,131 +893,35 @@ But I did.
     }
 
     // ============================================
-    // ⌨️ TYPING ANIMATION - FIXED & MOVED TO TOP
-    // ============================================
-    function startTyping() {
-      const words = ["sunshine ☀️", "safe space 🏠", "best friend 🫂", "favorite person 💕", "home 🏡", "everything ✨", "reason 🌙"];
-      let i = 0, j = 0, isDeleting = false, isEnd = false;
-      const wordsElement = document.getElementById('words');
-      
-      if (!wordsElement) return;
-      
-      function type() {
-        if (!wordsElement) return;
-        isEnd = false;
-        const currentWord = words[i];
-        
-        if (isDeleting) {
-          wordsElement.textContent = currentWord.substring(0, j - 1);
-          j--;
-          if (j === 0) { 
-            isDeleting = false; 
-            i = (i + 1) % words.length; 
-          }
-        } else {
-          wordsElement.textContent = currentWord.substring(0, j + 1);
-          j++;
-          if (j === currentWord.length) { 
-            isEnd = true; 
-            isDeleting = true; 
-          }
-        }
-        
-        const speed = isDeleting ? 50 : 100;
-        setTimeout(type, isEnd ? 2000 : speed);
-      }
-      setTimeout(type, 1000);
-    }
-    
-    // Fallback in case startTyping isn't defined
-    function startTypingFallback() {
-      const words = ["sunshine ☀️", "safe space 🏠", "best friend 🫂", "favorite person 💕", "home 🏡", "everything ✨", "reason 🌙"];
-      let i = 0, j = 0, isDeleting = false, isEnd = false;
-      const wordsElement = document.getElementById('words');
-      
-      if (!wordsElement) return;
-      
-      function type() {
-        if (!wordsElement) return;
-        isEnd = false;
-        const currentWord = words[i];
-        
-        if (isDeleting) {
-          wordsElement.textContent = currentWord.substring(0, j - 1);
-          j--;
-          if (j === 0) { 
-            isDeleting = false; 
-            i = (i + 1) % words.length; 
-          }
-        } else {
-          wordsElement.textContent = currentWord.substring(0, j + 1);
-          j++;
-          if (j === currentWord.length) { 
-            isEnd = true; 
-            isDeleting = true; 
-          }
-        }
-        
-        const speed = isDeleting ? 50 : 100;
-        setTimeout(type, isEnd ? 2000 : speed);
-      }
-      setTimeout(type, 1000);
-    }
-
-    // ============================================
-    // 🗺️ INTERACTIVE MAP - KADONGO → MOMBASA
+    // 🗺️ INTERACTIVE MAP WITH HEARTBEAT LINE
     // ============================================
     function initLoveMap() {
-      // Check if map container exists and Leaflet is loaded
       if (!document.getElementById('love-map') || typeof L === 'undefined') return;
       
-      // Clear any existing map
       const container = document.getElementById('love-map');
       container.innerHTML = '';
       
       try {
-        // Kadongo coordinates (approx) - 0.1167° N, 34.6167° E
         const kadongo = [0.1167, 34.6167];
-        // Mombasa coordinates - -4.0435° S, 39.6682° E
         const mombasa = [-4.0435, 39.6682];
         
-        // Create map centered between the two
         const map = L.map('love-map').setView([-1.9634, 37.14245], 7);
         
-        // Add beautiful light-themed tile layer
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
           subdomains: 'abcd',
           maxZoom: 19
         }).addTo(map);
         
-        // Custom heart icon for Mama (Kadongo)
-        const heartIcon = L.divIcon({
-          html: '📍',
-          className: 'text-2xl',
-          iconSize: [30, 30],
-          popupAnchor: [0, -15]
-        });
+        const heartIcon = L.divIcon({ html: '📍', className: 'text-2xl', iconSize: [30, 30] });
+        const homeIcon = L.divIcon({ html: '🏠', className: 'text-2xl', iconSize: [30, 30] });
         
-        // Custom home icon for Muffin (Mombasa)
-        const homeIcon = L.divIcon({
-          html: '🏠',
-          className: 'text-2xl',
-          iconSize: [30, 30],
-          popupAnchor: [0, -15]
-        });
-        
-        // Add marker for Kadongo (Mama)
         L.marker(kadongo, { icon: heartIcon }).addTo(map)
           .bindPopup('❤️ <strong>Mama</strong><br>Kadongo, Kenya');
-        
-        // Add marker for Mombasa (Muffin)
         L.marker(mombasa, { icon: homeIcon }).addTo(map)
           .bindPopup('💙 <strong>Muffin</strong><br>Mombasa, Kenya');
         
-        // Draw a beautiful pink line connecting the two cities
-        const latlngs = [kadongo, mombasa];
-        const polyline = L.polyline(latlngs, {
+        const polyline = L.polyline([kadongo, mombasa], {
           color: '#ff8da1',
           weight: 4,
           opacity: 0.8,
@@ -959,39 +929,63 @@ But I did.
           lineCap: 'round'
         }).addTo(map);
         
-        // Add animated heart along the line
         let counter = 0;
         setInterval(() => {
           counter = (counter + 0.01) % 1;
-          const point = polyline.getLatLngs()[0];
-          const lat = point[0] + (point[1] - point[0]) * counter;
-          const lng = point.lat ? point.lng : kadongo[1] + (mombasa[1] - kadongo[1]) * counter;
+          const lat = kadongo[0] + (mombasa[0] - kadongo[0]) * counter;
+          const lng = kadongo[1] + (mombasa[1] - kadongo[1]) * counter;
           
-          // Remove old heart marker
           if (window.heartMarker) map.removeLayer(window.heartMarker);
           
-          // Add new heart marker
           window.heartMarker = L.marker([lat, lng], {
             icon: L.divIcon({
-              html: '❤️',
-              className: 'text-xl animate-pulse',
-              iconSize: [20, 20]
+              html: '🫀',
+              className: 'text-2xl animate-pulse',
+              iconSize: [25, 25]
             })
           }).addTo(map);
-        }, 100);
+          
+          if (Math.random() < 0.3) heartConfetti(10);
+        }, 200);
         
-        // Add distance label
-        const distanceLabel = L.divIcon({
-          html: '<div class="bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-lg text-pink-500 font-bold text-xs">776 km ❤️</div>',
-          className: 'distance-label',
-          iconSize: [100, 30],
-          iconAnchor: [50, 15]
-        });
+        L.marker([-1.9634, 37.14245], {
+          icon: L.divIcon({
+            html: '<div class="bg-white/90 backdrop-blur px-3 py-1 rounded-full shadow-lg text-pink-500 font-bold text-xs heartbeat">776 km ❤️</div>',
+            className: 'distance-label',
+            iconSize: [100, 30],
+            iconAnchor: [50, 15]
+          })
+        }).addTo(map);
         
-        L.marker([-1.9634, 37.14245], { icon: distanceLabel }).addTo(map);
       } catch (e) {
         console.log("Map error:", e);
       }
+    }
+
+    // ============================================
+    // 💃 DANCE OVERLAY ON YES
+    // ============================================
+    function showDanceOverlay() {
+      const overlay = document.getElementById('dance-overlay');
+      overlay.classList.add('active');
+      heartConfetti(50);
+      
+      // Also try to play music if not playing
+      if (audio.paused) {
+        audio.muted = false;
+        audio.play()
+          .then(() => {
+            musicIcon.textContent = '🎵';
+            musicLabel.textContent = 'our song';
+          })
+          .catch(e => {});
+      }
+      
+      setTimeout(closeDanceOverlay, 8000);
+    }
+    
+    function closeDanceOverlay() {
+      document.getElementById('dance-overlay').classList.remove('active');
     }
 
     // ============================================
@@ -1005,27 +999,46 @@ But I did.
     }
 
     // ============================================
+    // ⌨️ TYPING ANIMATION
+    // ============================================
+    function startTyping() {
+      const words = ["sunshine ☀️", "safe space 🏠", "best friend 🫂", "favorite person 💕", "home 🏡", "everything ✨", "reason 🌙"];
+      let i = 0, j = 0, isDeleting = false, isEnd = false;
+      const wordsElement = document.getElementById('words');
+      
+      function type() {
+        if (!wordsElement) return;
+        isEnd = false;
+        const currentWord = words[i];
+        
+        if (isDeleting) {
+          wordsElement.textContent = currentWord.substring(0, j - 1);
+          j--;
+          if (j === 0) { isDeleting = false; i = (i + 1) % words.length; }
+        } else {
+          wordsElement.textContent = currentWord.substring(0, j + 1);
+          j++;
+          if (j === currentWord.length) { isEnd = true; isDeleting = true; }
+        }
+        
+        const speed = isDeleting ? 50 : 100;
+        setTimeout(type, isEnd ? 2000 : speed);
+      }
+      setTimeout(type, 1000);
+    }
+
+    // ============================================
     // 💘 YES/NO TOGGLE
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
-      // Initialize everything that doesn't need password
-      initGallery();
+      initPolaroidFlipCards();
       initReasons();
       initFutureKidsSection();
       
-      // Don't init countdown yet - wait for unlock
+      document.getElementById('password-input')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') checkPassword();
+      });
       
-      // Password input enter key
-      const passwordInput = document.getElementById('password-input');
-      if (passwordInput) {
-        passwordInput.addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') {
-            checkPassword();
-          }
-        });
-      }
-      
-      // YES/NO buttons
       const noBtn = document.getElementById('no-btn');
       const yesBtn = document.getElementById('yes-btn');
       const response = document.getElementById('valentine-response');
@@ -1036,35 +1049,32 @@ But I did.
           const y = Math.random() * 200 - 100;
           this.style.transform = `translate(${x}px, ${y}px)`;
         });
-        noBtn.addEventListener('click', function() { 
-          if (typeof unlockReason === 'function') unlockReason(); 
-        });
+        noBtn.addEventListener('click', function() { unlockReason(); });
       }
       
       if (yesBtn) {
         yesBtn.addEventListener('click', function() {
           response.classList.remove('hidden');
           createConfetti(50);
+          heartConfetti(50);
           this.style.transform = 'scale(1.2)';
           if (noBtn) noBtn.style.opacity = '0.5';
-          if (typeof unlockReason === 'function') unlockReason();
+          unlockReason();
+          showDanceOverlay();
         });
       }
       
-      // Voice note button
       const voiceBtn = document.getElementById('voice-note-btn');
       const voiceAudio = document.getElementById('her-voice');
-      
       if (voiceBtn && voiceAudio) {
         voiceBtn.addEventListener('click', function() {
           voiceAudio.play().catch(e => {
             alert('🎙️ "I said yes, obviously." — Add your voice file to assets/her-voice.m4a');
           });
-          if (typeof unlockReason === 'function') unlockReason();
+          unlockReason();
         });
       }
       
-      // Wax seal
       const seal = document.getElementById('wax-seal');
       if (seal) {
         seal.addEventListener('click', function(e) {
@@ -1076,25 +1086,25 @@ But I did.
           secretMsg.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gradient-to-br from-pink-100 to-white p-10 rounded-3xl shadow-2xl z-50 text-center border-4 border-pink-300';
           secretMsg.style.animation = 'fadeInScale 0.3s ease, float 3s ease infinite';
           secretMsg.innerHTML = `
-            <span class="text-7xl block mb-4">💌</span>
+            <span class="text-7xl block mb-4 heartbeat">💌</span>
             <h3 class="text-3xl font-bold mb-3" style="color: #ff8da1;">you broke the seal</h3>
             <p class="text-gray-600 text-lg mb-2">so here's the unfiltered truth:</p>
             <p class="text-gray-800 italic text-xl my-4" style="font-family: 'Playfair Display', serif;">
               "i knew i loved you<br>the night you fell asleep on my shoulder<br>and i didn't move for two hours<br>because some moments are worth going numb for."
             </p>
-            <button onclick="this.parentElement.remove(); createConfetti(30); if(typeof unlockReason === 'function') unlockReason();" 
+            <button onclick="this.parentElement.remove(); createConfetti(30); heartConfetti(20); unlockReason();" 
                     class="mt-4 px-6 py-2 bg-pink-400 text-white rounded-full hover:bg-pink-500 transition-colors">
               seal it back 💕
             </button>
           `;
           document.body.appendChild(secretMsg);
           createConfetti(15);
-          if (typeof unlockReason === 'function') unlockReason();
+          heartConfetti(10);
+          unlockReason();
           setTimeout(() => { if (secretMsg.parentNode) secretMsg.remove(); }, 8000);
         });
       }
       
-      // Try to load real image after page loads
       setTimeout(tryLoadRealImage, 1000);
     });
 
@@ -1109,6 +1119,11 @@ But I did.
         unlockedCount++;
         updateProgressMeter();
         createConfetti(8);
+        heartConfetti(5);
+        
+        if (unlockedCount === 6 || unlockedCount === 12) {
+          heartConfetti(50);
+        }
       }
     }
     
@@ -1119,7 +1134,7 @@ But I did.
       let html = '';
       for (let i = 0; i < TOTAL_REASONS; i++) {
         html += i < unlockedCount 
-          ? '<span class="w-3 h-3 bg-pink-400 rounded-full mx-0.5 unlock-progress-dot"></span>'
+          ? '<span class="w-3 h-3 bg-pink-400 rounded-full mx-0.5 unlock-progress-dot heartbeat"></span>'
           : '<span class="w-3 h-3 bg-gray-200 rounded-full mx-0.5 unlock-progress-dot"></span>';
       }
       progressDiv.innerHTML = html;
@@ -1131,7 +1146,6 @@ But I did.
           : `🎉 ALL 12 REASONS UNLOCKED! You've collected all my heart 🎉`;
       }
       
-      // Update reason cards
       const cards = document.querySelectorAll('#reasons-grid .memory-card');
       cards.forEach((card, index) => {
         if (index < unlockedCount) {
@@ -1142,7 +1156,6 @@ But I did.
           card.style.opacity = '0.5';
           card.style.filter = 'grayscale(0.5)';
           card.classList.add('reason-locked');
-          // Reset to front if locked
           const front = card.querySelector('.front');
           const back = card.querySelector('.back');
           if (back && !back.classList.contains('hidden-memory')) {
@@ -1154,80 +1167,93 @@ But I did.
     }
 
     // ============================================
-    // 📸 PHOTO GALLERY
+    // 📸 POLAROID FLIP CARDS
     // ============================================
-    const galleryPhotos = [
-      { url: "assets/IMG_20250710_145734.jpg", caption: "first date 🥰", date: "July 2025" },
-      { url: "https://placehold.co/400x400/ff8da1/ffffff?text=her+birthday", caption: "her birthday 🎂", date: "17 May 2002" },
-      { url: "https://placehold.co/400x400/ffb7c5/ffffff?text=beach+day", caption: "beach day 🌊", date: "Pending" },
-      { url: "assets/IMG_20250824_180300.jpg", caption: "3 Month's Anniversary ☕", date: "August 2025" },
-      { url: "assets/IMG_20250824_183141.jpg", caption: "just us 🤍", date: "August 2025" },
+    const polaroidMemories = [
+      { 
+        emoji: "🥰", 
+        title: "first date", 
+        date: "July 2025",
+        image: "assets/IMG_20250710_145734.jpg",
+        caption: "Butterflies from day one 🦋"
+      },
+      { 
+        emoji: "🎂", 
+        title: "her birthday", 
+        date: "17 May 2002",
+        image: "assets/IMG-20250605-WA0029.jpg",
+        caption: "The day the world got you ✨"
+      },
+      { 
+        emoji: "🌊", 
+        title: "beach day", 
+        date: "Soon 🤍",
+        image: "https://placehold.co/400x400/ffb7c5/ffffff?text=Our+first+beach",
+        caption: "Can't wait to see you in the sun ☀️"
+      },
+      { 
+        emoji: "☕", 
+        title: "3 months", 
+        date: "August 2025",
+        image: "assets/IMG_20250824_180300.jpg",
+        caption: "Three months, infinite moments"
+      },
+      { 
+        emoji: "🤍", 
+        title: "just us", 
+        date: "August 2025",
+        image: "assets/IMG_20250824_183141.jpg",
+        caption: "You. Me. Always."
+      },
+      { 
+        emoji: "✨", 
+        title: "our story", 
+        date: "continues...",
+        image: "https://placehold.co/400x400/ff8da1/ffffff?text=To+be+continued",
+        caption: "The best is yet to come 💫"
+      }
     ];
 
-    const polaroids = [
-      { emoji: "🥰", title: "first date", date: "July 2025" },
-      { emoji: "🎂", title: "her birthday", date: "17 May 2002" },
-      { emoji: "🌊", title: "beach day", date: "Pending" },
-      { emoji: "☕", title: "coffee mornings", date: "every day" },
-      { emoji: "🎬", title: "movie nights", date: "always" },
-      { emoji: "✨", title: "just because", date: "all the time" }
-    ];
-
-    function initGallery() {
-      const gallery = document.getElementById('photo-gallery');
-      if (gallery) {
-        gallery.innerHTML = ''; // Clear existing
-        galleryPhotos.forEach((photo) => {
-          const item = document.createElement('div');
-          item.className = 'gallery-item';
-          item.innerHTML = `
-            <img src="${photo.url}" alt="${photo.caption}" loading="lazy" onerror="this.src='https://placehold.co/400x400/ffb7c5/ffffff?text=memory'">
-            <div class="gallery-overlay">
-              <div><p class="font-bold">${photo.caption}</p><p class="text-sm opacity-90">${photo.date}</p></div>
+    function initPolaroidFlipCards() {
+      const grid = document.getElementById('polaroid-flip-grid');
+      if (!grid) return;
+      
+      grid.innerHTML = '';
+      
+      polaroidMemories.forEach((memory, index) => {
+        const card = document.createElement('div');
+        card.className = 'flip-card';
+        card.setAttribute('data-aos', 'fade-up');
+        card.setAttribute('data-aos-delay', index * 50);
+        
+        card.innerHTML = `
+          <div class="flip-inner">
+            <div class="flip-front">
+              <span class="text-6xl mb-3 heartbeat">${memory.emoji}</span>
+              <p class="text-gray-700 font-bold text-lg">${memory.title}</p>
+              <p class="text-xs text-gray-400 mt-1">${memory.date}</p>
             </div>
-          `;
-          item.addEventListener('click', () => { 
-            openLightbox(photo.url, photo.caption); 
-            if (typeof unlockReason === 'function') unlockReason(); 
-          });
-          gallery.appendChild(item);
+            <div class="flip-back">
+              <img src="${memory.image}" alt="${memory.title}" onerror="this.src='https://placehold.co/400x400/ffb7c5/ffffff?text=memory'">
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+                <p class="text-white text-sm font-medium">${memory.caption}</p>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        card.addEventListener('click', function() {
+          this.classList.toggle('flipped');
+          heartConfetti(5);
+          unlockReason();
         });
-      }
-
-      const polaroidWall = document.getElementById('polaroid-wall');
-      if (polaroidWall) {
-        polaroidWall.innerHTML = ''; // Clear existing
-        polaroids.forEach((p, i) => {
-          const polaroid = document.createElement('div');
-          polaroid.className = 'polaroid rounded-lg';
-          polaroid.style.setProperty('--rotate', `${(i % 2 === 0 ? -2 : 3)}deg`);
-          polaroid.innerHTML = `
-            <div class="h-48 bg-gradient-to-br from-pink-100 to-pink-200 rounded-md mb-3 flex items-center justify-center text-6xl">${p.emoji}</div>
-            <p class="text-center text-gray-700 font-medium">${p.title}</p>
-            <p class="text-center text-xs text-gray-400">${p.date}</p>
-          `;
-          polaroidWall.appendChild(polaroid);
-        });
-      }
-    }
-
-    // Lightbox functions
-    function openLightbox(imgSrc, caption) {
-      const lightbox = document.getElementById('lightbox');
-      const lightboxImg = document.getElementById('lightbox-img');
-      lightboxImg.src = imgSrc;
-      lightboxImg.alt = caption;
-      lightbox.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeLightbox() {
-      document.getElementById('lightbox').classList.remove('active');
-      document.body.style.overflow = 'auto';
+        
+        grid.appendChild(card);
+      });
     }
 
     // ============================================
-    // 💝 12 REASONS - YOUR EXACT WORDS
+    // 💝 12 REASONS
     // ============================================
     const reasons = [
       "Your laugh could cure my worst day 🎵",
@@ -1247,7 +1273,7 @@ But I did.
     function initReasons() {
       const grid = document.getElementById('reasons-grid');
       if (grid) {
-        grid.innerHTML = ''; // Clear existing
+        grid.innerHTML = '';
         reasons.forEach((reason, index) => {
           const card = document.createElement('div');
           card.className = 'card memory-card rounded-xl relative';
@@ -1272,6 +1298,7 @@ But I did.
               
               if (!back.classList.contains('hidden-memory')) {
                 createConfetti(10);
+                heartConfetti(5);
                 if (window.navigator.vibrate) window.navigator.vibrate(20);
               }
             } else {
@@ -1286,29 +1313,7 @@ But I did.
     }
 
     // ============================================
-    // ❤️ FLOATING HEARTS
-    // ============================================
-    function createHeart() {
-      const heart = document.createElement('div');
-      heart.innerHTML = '❤️';
-      heart.style.position = 'fixed';
-      heart.style.left = Math.random() * 100 + 'vw';
-      heart.style.top = '100vh';
-      heart.style.fontSize = (Math.random() * 30 + 10) + 'px';
-      heart.style.opacity = Math.random() * 0.5 + 0.3;
-      heart.style.animation = `float ${Math.random() * 3 + 2}s linear infinite`;
-      heart.style.pointerEvents = 'none';
-      heart.style.zIndex = '0';
-      const heartBg = document.getElementById('heart-bg');
-      if (heartBg) {
-        heartBg.appendChild(heart);
-        setTimeout(() => heart.remove(), 6000);
-      }
-    }
-    setInterval(createHeart, 500);
-
-    // ============================================
-    // 🎉 CONFETTI
+    // ❤️ CONFETTI (Legacy)
     // ============================================
     function createConfetti(count = 20) {
       const emojis = ['❤️', '💖', '💕', '💗', '💓', '🌸', '✨', '🎀'];
@@ -1337,18 +1342,17 @@ But I did.
       if (surpriseBtn) {
         surpriseBtn.addEventListener('click', function() {
           createConfetti(100);
-          if (typeof unlockReason === 'function') {
-            unlockReason();
-            unlockReason();
-          }
+          heartConfetti(100);
+          unlockReason();
+          unlockReason();
           
           const msg = document.createElement('div');
           msg.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-8 rounded-3xl shadow-2xl z-50 text-center';
           msg.style.animation = 'float 3s ease infinite';
           msg.innerHTML = `
-            <span class="text-6xl block mb-4">🎁</span>
+            <span class="text-6xl block mb-4 heartbeat">🎁</span>
             <h3 class="text-2xl font-bold text-pink-500 mb-2">SURPRISE!</h3>
-            <p class="text-gray-600">you're the best thing that ever happened to me 🥹</p>
+            <p class="text-gray-600">you're the best thing and most beautiful that ever happened to me 🥹</p>
             <p class="text-gray-400 text-sm mt-4">now go smile you beautiful human</p>
           `;
           document.body.appendChild(msg);
@@ -1358,10 +1362,9 @@ But I did.
     });
 
     // ============================================
-    // ⏰ LIVE COUNTDOWN TIMER (WITH SECONDS!)
+    // ⏰ COUNTDOWN TIMER
     // ============================================
     function initCountdown() {
-      // Set your next visit date - CHANGE THIS!
       const nextVisit = new Date('March 15, 2026 10:00:00').getTime();
       
       function updateCountdown() {
@@ -1372,7 +1375,6 @@ But I did.
         const hoursEl = document.getElementById('hours');
         const minutesEl = document.getElementById('minutes');
         const secondsEl = document.getElementById('seconds');
-        const messageEl = document.getElementById('countdown-message');
         
         if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
         
@@ -1386,24 +1388,15 @@ But I did.
           hoursEl.textContent = hours.toString().padStart(2, '0');
           minutesEl.textContent = minutes.toString().padStart(2, '0');
           secondsEl.textContent = seconds.toString().padStart(2, '0');
-          if (messageEl) messageEl.innerHTML = 'every second brings me closer to you';
-        } else {
-          // Countdown finished!
-          daysEl.textContent = '00';
-          hoursEl.textContent = '00';
-          minutesEl.textContent = '00';
-          secondsEl.textContent = '00';
-          if (messageEl) messageEl.innerHTML = '🎉 SHE\'S HERE! 🎉';
         }
       }
       
-      // Update immediately, then every second
       updateCountdown();
       setInterval(updateCountdown, 1000);
     }
 
     // ============================================
-    // 👶 FUTURE KIDS (YOUR EXACT CODE)
+    // 👶 FUTURE KIDS
     // ============================================
     const FUTURE_KIDS_DATA = {
       min: 1, max: 5, defaultCount: 2,
@@ -1451,6 +1444,7 @@ But I did.
             this.classList.add('shake');
             setTimeout(() => this.classList.remove('shake'), 500);
             createConfetti(5);
+            heartConfetti(3);
           }
         });
       }
@@ -1465,6 +1459,7 @@ But I did.
           if (shakeCount === 3) {
             alert('👶🧸 "i hope they have your eyes" — future dad energy');
             createConfetti(20);
+            heartConfetti(30);
             shakeCount = 0;
           }
         });
@@ -1489,6 +1484,7 @@ But I did.
           letterEl.style.opacity = '1';
         }, 200);
         createConfetti(8);
+        heartConfetti(5);
       });
     }
 
@@ -1509,6 +1505,7 @@ But I did.
       }, 300);
       updateKidCount();
       createConfetti(50);
+      heartConfetti(100);
     }
 
     function updateKidCount() {
@@ -1565,7 +1562,7 @@ But I did.
     }
 
     // ============================================
-    // ✨ ADD KEYFRAME ANIMATIONS
+    // ✨ ANIMATIONS STYLESHEET
     // ============================================
     (function addAnimations() {
       const styleSheet = document.createElement('style');
@@ -1574,19 +1571,62 @@ But I did.
         @keyframes fadeInScale { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
         @keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
         .animate-blink { animation: blink 1s step-end infinite; }
+        .lightbox {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100vh;
+          background: rgba(0,0,0,0.9);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10000;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+        }
+        .lightbox.active {
+          opacity: 1;
+          visibility: visible;
+        }
+        .lightbox-content {
+          max-width: 90%;
+          max-height: 90vh;
+          position: relative;
+        }
+        .lightbox-content img {
+          max-width: 100%;
+          max-height: 85vh;
+          border-radius: 1rem;
+        }
+        .lightbox-close {
+          position: absolute;
+          top: -40px;
+          right: 0;
+          color: white;
+          font-size: 2rem;
+          cursor: pointer;
+        }
+        .music-player {
+          background: white;
+          border-radius: 1rem;
+          padding: 0.75rem;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
       `;
       document.head.appendChild(styleSheet);
     })();
 
     // ============================================
-    // 🚀 MAKE SURE TYPING IS AVAILABLE GLOBALLY
+    // 🚀 EXPOSE GLOBALS
     // ============================================
-    window.startTyping = startTyping;
-    window.startTypingFallback = startTypingFallback;
     window.checkPassword = checkPassword;
     window.closeLightbox = closeLightbox;
     window.unlockReason = unlockReason;
     window.createConfetti = createConfetti;
+    window.heartConfetti = heartConfetti;
+    window.closeDanceOverlay = closeDanceOverlay;
   </script>
 </body>
 </html>
